@@ -1,0 +1,46 @@
+{
+  "name": "teamwork-backend-api",
+  "version": "1.0.0",
+  "description": "API server for a internal social network",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ipkiruiYegon/Teamwork-Backend-API.git"
+  },
+  "author": "Yegon Kipkirui Geoffrey",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/runtime": "^7.7.2",
+    "config": "^3.2.4",
+    "debug": "^4.1.1",
+    "express": "^4.17.1",
+    "pg": "^7.14.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.7.0",
+    "@babel/core": "^7.7.2",
+    "@babel/node": "^7.7.0",
+    "@babel/plugin-transform-runtime": "^7.6.2",
+    "@babel/preset-env": "^7.7.1",
+    "@babel/register": "^7.7.0",
+    "babel-eslint": "^10.0.3",
+    "chai": "^4.2.0",
+    "eslint": "^6.6.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^10.0.0",
+    "install": "^0.13.0",
+    "mocha": "^6.2.2",
+    "nodemon": "^2.0.0",
+    "npm": "^6.13.1",
+    "supertest": "^4.0.2"
+  },
+  "bugs": {
+    "url": "https://github.com/ipkiruiYegon/Teamwork-Backend-API/issues"
+  },
+  "homepage": "https://github.com/ipkiruiYegon/Teamwork-Backend-API#readme"
+}
