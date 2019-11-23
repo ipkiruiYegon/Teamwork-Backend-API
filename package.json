@@ -13,7 +13,7 @@
     "devc": "nodemon ./src/index.js --NODE_ENV=development --DEBUG=server:debug --exec babel-node ",
     "clean": "rimraf dist",
     "prod": "npm-run-all clean build server:prod --NODE_ENV=production ",
-    "test": "mocha tests/ --reporter spec --exit --NODE_ENV=test --DEBUG=server:debug   --exec babel-node --require @babel/register",
+    "test": "mocha tests/ --reporter spec --NODE_ENV=test --DEBUG=server:debug   --exec babel-node --require @babel/register --exit --0",
     "test:watch": "mocha tests/ --reporter  spec --NODE_ENV=development --DEBUG=server:debug --exec --require @babel/register babel-node  watch",
     "eslint": "eslint src/**/*.js --ignore-pattern \"node_modules/\"",
     "lint": "eslint",
