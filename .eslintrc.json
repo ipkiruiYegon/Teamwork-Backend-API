@@ -1,6 +1,6 @@
 {
   "parser": "babel-eslint",
-  "plugins": ["babel", "node"],
+  "plugins": ["@babel/plugin-transform-runtime"],
   "env": {
     "browser": true,
     "es6": true,
@@ -16,5 +16,7 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "rules": {}
+  "rules": {
+    "comma-dangle": ["error", "never"]
+  }
 }

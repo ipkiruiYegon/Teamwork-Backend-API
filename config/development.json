@@ -1,0 +1,5 @@
+{
+  "name": "Server Development",
+  "database": "postgres://teamOwner:Dteam5931@localhost:5932/teamwork",
+  "port": 3000
+}

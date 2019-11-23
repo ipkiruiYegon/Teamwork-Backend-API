@@ -4,7 +4,20 @@
   "description": "API server for a internal social network",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "babel src -d dist --source-maps",
+    "server": "babel-node ./src/index.js",
+    "serve": "babel-node ./dist/index.js --NODE_ENV=production",
+    "start": "npm run prod",
+    "server:prod": "node ./dist/index.js",
+    "dev": "npm-run-all server --NODE_ENV=development",
+    "devc": "nodemon ./src/index.js --NODE_ENV=development --DEBUG=server:debug --exec babel-node ",
+    "clean": "rimraf dist",
+    "prod": "npm-run-all clean build server:prod --NODE_ENV=production ",
+    "test": "mocha tests/ --reporter spec --exit --NODE_ENV=test --DEBUG=server:debug   --exec babel-node --require @babel/register",
+    "test:watch": "mocha tests/ --reporter  spec --NODE_ENV=development --DEBUG=server:debug --exec --require @babel/register babel-node  watch",
+    "eslint": "eslint src/**/*.js --ignore-pattern \"node_modules/\"",
+    "lint": "eslint",
+    "watch": "nodemon"
   },
   "repository": {
     "type": "git",
@@ -12,12 +25,20 @@
   },
   "author": "Yegon Kipkirui Geoffrey",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ipkiruiYegon/Teamwork-Backend-API/issues"
+  },
+  "homepage": "https://github.com/ipkiruiYegon/Teamwork-Backend-API#readme",
   "dependencies": {
     "@babel/runtime": "^7.7.2",
+    "babel-polyfill": "^6.26.0",
+    "body-parser": "^1.19.0",
     "config": "^3.2.4",
     "debug": "^4.1.1",
     "express": "^4.17.1",
-    "pg": "^7.14.0"
+    "npm-run-all": "^4.1.5",
+    "pg": "^7.14.0",
+    "rimraf": "^3.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.7.0",
@@ -28,19 +49,13 @@
     "@babel/register": "^7.7.0",
     "babel-eslint": "^10.0.3",
     "chai": "^4.2.0",
-    "eslint": "^6.6.0",
+    "eslint": "^6.7.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^10.0.0",
-    "install": "^0.13.0",
     "mocha": "^6.2.2",
-    "nodemon": "^2.0.0",
-    "npm": "^6.13.1",
+    "nodemon": "^2.0.1",
     "supertest": "^4.0.2"
-  },
-  "bugs": {
-    "url": "https://github.com/ipkiruiYegon/Teamwork-Backend-API/issues"
-  },
-  "homepage": "https://github.com/ipkiruiYegon/Teamwork-Backend-API#readme"
+  }
 }
