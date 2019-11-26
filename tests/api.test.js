@@ -139,9 +139,9 @@ describe('Create an article', () => {
 });
 
 describe('Edit an article', () => {
-  it('PATCH /api/v1/articles/<:articleId> it should return article updated', async () => {
+  it('PATCH /api/v1/articles/:articleId it should return article updated', async () => {
     const response = await request(server).patch(
-      '/api/v1/articles/<:articleId>'
+      '/api/v1/articles/:articleId'
     );
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('status', 'success');
@@ -160,9 +160,9 @@ describe('Edit an article', () => {
 });
 
 describe('Employees can delete their articles', () => {
-  it('DELETE /api/v1/articles/<:articleId> it should return', async () => {
+  it('DELETE /api/v1/articles/:articleId it should return', async () => {
     const response = await request(server).delete(
-      '/api/v1/articles/<:articleId>'
+      '/api/v1/articles/:articleId'
     );
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('status', 'success');
@@ -179,8 +179,8 @@ describe('Employees can delete their articles', () => {
 });
 
 describe('Employees can delete their gifs', () => {
-  it('DELETE /api/v1/articles/<:gifId> it should return success', async () => {
-    const response = await request(server).delete('/api/v1/articles/<:gifId>');
+  it('DELETE /api/v1/articles/:gifId it should return success', async () => {
+    const response = await request(server).delete('/api/v1/articles/:gifId');
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
@@ -196,9 +196,9 @@ describe('Employees can delete their gifs', () => {
 });
 
 describe("Employees can comment on other colleagues' article post", () => {
-  it('POST /api/v1/articles/<:articleId>/ it should return success', async () => {
+  it('POST /api/v1/articles/:articleId/ it should return success', async () => {
     const response = await request(server).post(
-      '/api/v1/articles/<:articleId>/comment'
+      '/api/v1/articles/:articleId/comment'
     );
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('status', 'success');
@@ -219,9 +219,9 @@ describe("Employees can comment on other colleagues' article post", () => {
 });
 
 describe("Employees can comment on other colleagues' gif post", () => {
-  it('POST /api/v1/articles/<:gifId>/comment it should return success', async () => {
+  it('POST /api/v1/articles/:gifId/comment it should return success', async () => {
     const response = await request(server).post(
-      '/api/v1/articles/<:gifId>/comment'
+      '/api/v1/articles/:gifId/comment'
     );
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('status', 'success');
@@ -264,7 +264,7 @@ describe('Employees can view all articles or gifs, showing the most recently pos
 
 describe('Employees can view a specific article', () => {
   it('GET /api/v1/articles/<:articleId> it should return success and array of article and its comments if any', async () => {
-    const response = await request(server).get('/api/v1/articles/<:articleId>');
+    const response = await request(server).get('/api/v1/articles/:articleId');
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
@@ -286,7 +286,7 @@ describe('Employees can view a specific article', () => {
 
 describe('Employees can view a specific gif post', () => {
   it('GET /api/v1/gifs/<:gifId> it should returns success and success and array of gifs and its comments if any', async () => {
-    const response = await request(server).get('/api/v1/gifs/<:gifId>');
+    const response = await request(server).get('/api/v1/gifs/:gifId');
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');

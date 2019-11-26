@@ -2,7 +2,8 @@ import express from 'express';
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.post('/gifs/:gifId/comment', (req, res) => {
+    res.status(201)
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'

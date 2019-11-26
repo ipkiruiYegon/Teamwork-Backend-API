@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 
-const routes = require('../src/app_routes/index');
+const routes = require('../src/routes/routes');
 
 const app = express();
 
