@@ -15,18 +15,20 @@ describe('unmatched routes', () => {
 
 describe('Create user account', () => {
   it('POST /api/v1/auth/create-user it should return success and data object of the user created', async () => {
-    const user_data ={
-      firstName: "Yegon",
-      lastName: "Kipkirui Geoffrey",
-      email: "gyegon@patnassacco.co.ke",
-      password: "dgcaljos0207",
-      gender: "Male",
-      jobRole: "Admin",
-      department: "Bosa",
-      address: "P.o box 52-20204",
-      is_superuser: "True"
-    }
-    const response = await request(server).post('/api/v1/auth/create-user').send(user_data);
+    const user_data = {
+      firstName: 'Yegon',
+      lastName: 'Kipkirui Geoffrey',
+      email: 'gyegon@patnassacco.co.ke',
+      password: 'dgcaljos0207',
+      gender: 'Male',
+      jobRole: 'Admin',
+      department: 'Bosa',
+      address: 'P.o box 52-20204',
+      is_superuser: 'True'
+    };
+    const response = await request(server)
+      .post('/api/v1/auth/create-user')
+      .send(user_data);
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
@@ -45,18 +47,20 @@ describe('Create user account', () => {
 
 describe('Create user account with invalid information', () => {
   it('POST /api/v1/auth/create-user it should return error and error message', async () => {
-    const user_data ={
-      firstName: "Yegon",
-      lastName: "Kipkirui Geoffrey",
-      email: "gyegonpatnassacco.co.ke",
-      password: "Admin0207",
-      gender: "Male",
-      jobRole: "Admin",
-      department: "Bosa",
-      address: "P.o box 52-20204",
-      is_superuser: "True"
-    }
-    const response = await request(server).post('/api/v1/auth/create-user').send(user_data);
+    const user_data = {
+      firstName: 'Yegon',
+      lastName: 'Kipkirui Geoffrey',
+      email: 'gyegonpatnassacco.co.ke',
+      password: 'Admin0207',
+      gender: 'Male',
+      jobRole: 'Admin',
+      department: 'Bosa',
+      address: 'P.o box 52-20204',
+      is_superuser: 'True'
+    };
+    const response = await request(server)
+      .post('/api/v1/auth/create-user')
+      .send(user_data);
     expect(response.status).to.equal(400);
     expect(response.body).to.be.a('object');
     expect(response.body).to.have.property('status', 'error');
@@ -67,10 +71,12 @@ describe('Create user account with invalid information', () => {
 describe('Login in to user account', () => {
   it('POST /api/v1/auth/signin it should return success and data object of user logged in', async () => {
     const login_details = {
-      email: "gyegon@patnassacco.co.ke",
-      password: "Admin0207"
-    }
-    const response = await request(server).post('/api/v1/auth/signin').send(login_details);
+      email: 'gyegon@patnassacco.co.ke',
+      password: 'Admin0207'
+    };
+    const response = await request(server)
+      .post('/api/v1/auth/signin')
+      .send(login_details);
     expect(response.status).to.equal(200);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
@@ -86,20 +92,31 @@ describe('Login in to user account', () => {
 describe('Login in to user account with wrong credentials', () => {
   it('POST /api/v1/auth/signin it should return error and error message', async () => {
     const login_details = {
-      email: "yegon@patnassacco.co.ke",
-      password: "Amin0207"
-    }
-    const response = await request(server).post('/api/v1/auth/signin').send(login_details);
+      email: 'yegon@patnassacco.co.ke',
+      password: 'Amin0207'
+    };
+    const response = await request(server)
+      .post('/api/v1/auth/signin')
+      .send(login_details);
     expect(response.status).to.equal(401);
     expect(response.body).to.be.a('object');
     expect(response.body).to.have.property('status', 'error');
-    expect(response.body).to.have.property('error','Wrong login credentials');
+    expect(response.body).to.have.property('error', 'Wrong login credentials');
   });
 });
 
 describe('Create a gif', () => {
   it('POST /api/v1/gif it should return success and data object of gif posted', async () => {
-    const response = await request(server).post('/api/v1/gifs').set('Content-Type', 'application/x-www-form-urlencoded').field('image', 'png').field('title', 'motivation').attach('gif',fs.readFileSync('C:/Users/Stallion Stud/Desktop/photo0085.jpg'),'yegon.jpg');
+    const response = await request(server)
+      .post('/api/v1/gifs')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .field('image', 'png')
+      .field('title', 'motivation')
+      .attach(
+        'gif',
+        fs.readFileSync('C:/Users/Stallion Stud/Desktop/photo0085.jpg'),
+        'yegon.jpg'
+      );
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
@@ -140,9 +157,7 @@ describe('Create an article', () => {
 
 describe('Edit an article', () => {
   it('PATCH /api/v1/articles/:articleId it should return article updated', async () => {
-    const response = await request(server).patch(
-      '/api/v1/articles/:articleId'
-    );
+    const response = await request(server).patch('/api/v1/articles/:articleId');
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
@@ -164,7 +179,7 @@ describe('Employees can delete their articles', () => {
     const response = await request(server).delete(
       '/api/v1/articles/:articleId'
     );
-    expect(response.status).to.equal(201);
+    expect(response.status).to.equal(200);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
     expect(response.body)
@@ -181,7 +196,7 @@ describe('Employees can delete their articles', () => {
 describe('Employees can delete their gifs', () => {
   it('DELETE /api/v1/articles/:gifId it should return success', async () => {
     const response = await request(server).delete('/api/v1/articles/:gifId');
-    expect(response.status).to.equal(201);
+    expect(response.status).to.equal(200);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
     expect(response.body)
@@ -243,7 +258,7 @@ describe("Employees can comment on other colleagues' gif post", () => {
 describe('Employees can view all articles or gifs, showing the most recently posted articles or gifs first', () => {
   it('GET /api/v1/feed it should return success and array of gifs or article', async () => {
     const response = await request(server).get('/api/v1/feed');
-    expect(response.status).to.equal(201);
+    expect(response.status).to.equal(200);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
     expect(response.body)
@@ -265,7 +280,7 @@ describe('Employees can view all articles or gifs, showing the most recently pos
 describe('Employees can view a specific article', () => {
   it('GET /api/v1/articles/<:articleId> it should return success and array of article and its comments if any', async () => {
     const response = await request(server).get('/api/v1/articles/:articleId');
-    expect(response.status).to.equal(201);
+    expect(response.status).to.equal(200);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
     expect(response.body)
@@ -287,7 +302,7 @@ describe('Employees can view a specific article', () => {
 describe('Employees can view a specific gif post', () => {
   it('GET /api/v1/gifs/<:gifId> it should returns success and success and array of gifs and its comments if any', async () => {
     const response = await request(server).get('/api/v1/gifs/:gifId');
-    expect(response.status).to.equal(201);
+    expect(response.status).to.equal(200);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
     expect(response.body)
