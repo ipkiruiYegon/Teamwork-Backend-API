@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-
-const routes = require('../src/routes/routes');
+import Auth from '../src/routes/routes';
+const routes = require('../src/auth/middleware/auth');
 
 const app = express();
 
@@ -22,7 +22,7 @@ app.use(
   })
 );
 
-app.use(routes);
+app.use(Auth.verifyToken, routes);
 
 // error handler for routes not found
 app.get('*', (req, res) => {
