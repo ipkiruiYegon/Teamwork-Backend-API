@@ -1,7 +1,6 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import Auth from '../src/routes/routes';
-const routes = require('../src/auth/middleware/auth');
+const express = require('express');
+const bodyParser = require('body-parser');
+const routes = require('../src/routes/routes');
 
 const app = express();
 
@@ -22,10 +21,18 @@ app.use(
   })
 );
 
-app.use(Auth.verifyToken, routes);
+app.use('/', routes);
 
 // error handler for routes not found
 app.get('*', (req, res) => {
+  res.status(404);
+  res.json({
+    status: 'error',
+    error: 'Route not found'
+  });
+});
+
+app.post('*', (req, res) => {
   res.status(404);
   res.json({
     status: 'error',

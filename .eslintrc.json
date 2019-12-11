@@ -1,8 +1,6 @@
 {
   "parser": "babel-eslint",
-  "plugins": [
-    "@babel/plugin-transform-runtime"
-  ],
+
   "env": {
     "browser": true,
     "es6": true,
@@ -10,10 +8,7 @@
     "commonjs": true,
     "mocha": true
   },
-  "extends": [
-    "eslint:recommended",
-    "airbnb-base"
-  ],
+  "extends": ["airbnb-base"],
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
@@ -23,9 +18,7 @@
     "sourceType": "module"
   },
   "rules": {
-    "comma-dangle": [
-      "error",
-      "never"
-    ]
+    "linebreak-style": 0,
+    "comma-dangle": ["error", "never"]
   }
 }

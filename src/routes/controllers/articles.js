@@ -1,55 +1,54 @@
-import express from 'express';
+const express = require('express');
 
 const router = express.Router();
+const Auth = require('../../auth/middleware/auth.js');
 
-router.get('/feed/articles', (req, res) => {
-    res.status(200)
+router.get('/feed/articles', Auth.verifyToken, (req, res) => {
+  res.status(200);
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'
   });
 });
 
-router.get('/articles', (req, res) => {
-    res.status(200)
+router.get('/articles', Auth.verifyToken, (req, res) => {
+  res.status(200);
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'
   });
 });
 
-router.post('/articles', (req, res) => {
-    res.status(201)
+router.post('/articles', Auth.verifyToken, (req, res) => {
+  res.status(201);
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'
   });
 });
 
-router.get('/articles/:articleId', (req, res) => {
-    res.status(200)
+router.get('/articles/:articleId', Auth.verifyToken, (req, res) => {
+  res.status(200);
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'
   });
 });
 
-router.put('/articles/:articleId', (req, res) => {
-    res.status(200)
+router.put('/articles/:articleId', Auth.verifyToken, (req, res) => {
+  res.status(200);
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'
   });
 });
 
-router.delete('/articles/:articleId', (req, res) => {
-    res.status(200)
+router.delete('/articles/:articleId', Auth.verifyToken, (req, res) => {
+  res.status(200);
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'
   });
 });
-
-
 
 module.exports = router;

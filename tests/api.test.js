@@ -47,7 +47,7 @@ describe('Create user account', () => {
 
 describe('Create user account with invalid information', () => {
   it('POST /api/v1/auth/create-user it should return error and error message', async () => {
-    const user_data = {
+    const userData = {
       firstName: 'Yegon',
       lastName: 'Kipkirui Geoffrey',
       email: 'gyegonpatnassacco.co.ke',
@@ -60,7 +60,7 @@ describe('Create user account with invalid information', () => {
     };
     const response = await request(server)
       .post('/api/v1/auth/create-user')
-      .send(user_data);
+      .send(userData);
     expect(response.status).to.equal(400);
     expect(response.body).to.be.a('object');
     expect(response.body).to.have.property('status', 'error');
@@ -70,13 +70,13 @@ describe('Create user account with invalid information', () => {
 
 describe('Login in to user account', () => {
   it('POST /api/v1/auth/signin it should return success and data object of user logged in', async () => {
-    const login_details = {
+    const loginDetails = {
       email: 'gyegon@patnassacco.co.ke',
       password: 'Admin0207'
     };
     const response = await request(server)
       .post('/api/v1/auth/signin')
-      .send(login_details);
+      .send(loginDetails);
     expect(response.status).to.equal(200);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
@@ -91,13 +91,13 @@ describe('Login in to user account', () => {
 
 describe('Login in to user account with wrong credentials', () => {
   it('POST /api/v1/auth/signin it should return error and error message', async () => {
-    const login_details = {
+    const loginDetails = {
       email: 'yegon@patnassacco.co.ke',
       password: 'Amin0207'
     };
     const response = await request(server)
       .post('/api/v1/auth/signin')
-      .send(login_details);
+      .send(loginDetails);
     expect(response.status).to.equal(401);
     expect(response.body).to.be.a('object');
     expect(response.body).to.have.property('status', 'error');

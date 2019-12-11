@@ -1,46 +1,46 @@
-import express from 'express';
+const express = require('express');
 
 const router = express.Router();
+const Auth = require('../../auth/middleware/auth.js');
 
-router.get('/feed/gifs', (req, res) => {
-    res.status(200)
+router.get('/feed/gifs', Auth.verifyToken, (req, res) => {
+  res.status(200);
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'
   });
 });
 
-router.get('/gifs', (req, res) => {
-    res.status(200)
+router.get('/gifs', Auth.verifyToken, (req, res) => {
+  res.status(200);
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'
   });
 });
 
-router.post('/gifs', (req, res) => {
-    res.status(201)
+router.post('/gifs', Auth.verifyToken, (req, res) => {
+  res.status(201);
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'
   });
 });
 
-router.get('/gifs/:gifId', (req, res) => {
-    res.status(200)
+router.get('/gifs/:gifId', Auth.verifyToken, (req, res) => {
+  res.status(200);
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'
   });
 });
 
-router.delete('/gifs/:gifId', (req, res) => {
-    res.status(200)
+router.delete('/gifs/:gifId', Auth.verifyToken, (req, res) => {
+  res.status(200);
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'
   });
 });
-
 
 module.exports = router;

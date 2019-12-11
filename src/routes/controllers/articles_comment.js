@@ -1,9 +1,10 @@
-import express from 'express';
+const express = require('express');
 
 const router = express.Router();
+const Auth = require('../../auth/middleware/auth.js');
 
-router.post('/articles/:articleId/comment', (req, res) => {
-    res.status(201)    
+router.post('/articles/:articleId/comment', Auth.verifyToken, (req, res) => {
+  res.status(201);
   res.json({
     status: 'success',
     message: 'Welcome to Api v1'
