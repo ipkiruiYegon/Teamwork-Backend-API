@@ -1,4 +1,4 @@
-import config from 'config';
+const config = require('config');
 
 const debug = require('debug')('server:debug');
 
