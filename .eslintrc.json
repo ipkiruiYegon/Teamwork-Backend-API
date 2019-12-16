@@ -1,6 +1,5 @@
 {
   "parser": "babel-eslint",
-
   "env": {
     "browser": true,
     "es6": true,
@@ -18,7 +17,7 @@
     "sourceType": "module"
   },
   "rules": {
-    "linebreak-style": 0,
-    "comma-dangle": ["error", "never"]
+    "comma-dangle": ["error", "never"],
+    "linebreak-style": ["error", "windows"]
   }
 }

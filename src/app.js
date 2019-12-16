@@ -41,6 +41,7 @@ app.post('*', (req, res) => {
 });
 
 // error handler for errors
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.json({
