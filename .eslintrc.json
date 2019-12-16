@@ -4,9 +4,10 @@
     "browser": true,
     "es6": true,
     "node": true,
+    "commonjs": true,
     "mocha": true
   },
-  "extends": ["eslint:recommended", "airbnb-base"],
+  "extends": ["airbnb-base"],
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
