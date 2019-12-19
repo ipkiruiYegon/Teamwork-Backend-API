@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const routes = require('../src/routes/routes');
+const routesv1 = require('./routes/routes_v1');
 
 const app = express();
 
@@ -21,7 +21,7 @@ app.use(
   })
 );
 
-app.use('/', routes);
+app.use('/', routesv1);
 
 // error handler for routes not found
 app.get('*', (req, res) => {

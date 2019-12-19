@@ -1,6 +1,7 @@
 {
   "name": "Server Test",
-  "database": "postgres://teamOwner:Dteam5931@localhost:5932/teamwork",
+  "database": "postgres://teamOwner:Dteam5931@localhost:5932/Test_DB",
+  "dbName": "Test_DB",
   "port": 3100,
   "secret": "TESTFORMYAPISROUTES"
 }

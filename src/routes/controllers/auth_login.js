@@ -5,6 +5,7 @@ const Auth = require('../../auth/middleware/auth.js');
 const Validate = require('../../auth/validate.js');
 const db = require('../../db/index.js');
 
+// eslint-disable-next-line consistent-return
 router.post('/auth/create-user', Auth.verifyTokenAdmin, async (req, res) => {
   // eslint-disable-next-line max-len
   if (
@@ -68,15 +69,15 @@ router.post('/auth/signin', async (req, res) => {
   try {
     const { rows } = await db.query(text, [req.body.email]);
     if (!rows[0]) {
-      return res.status(400).send({
+      return res.status(401).send({
         status: 'error',
         error: 'invalid login credentials'
       });
     }
     if (!Validate.comparePassword(rows[0].password, req.body.password)) {
-      return res.status(400).send({
+      return res.status(401).send({
         status: 'error',
-        error: 'The credentials you provided is incorrect'
+        error: 'invalid login credentials'
       });
     }
     const token = Validate.generateToken(rows[0].id);
@@ -86,7 +87,13 @@ router.post('/auth/signin', async (req, res) => {
         error: 'an error occured while processing your login request'
       });
     }
-    return res.status(200).send({ token });
+    return res.status(200).send({
+      status: 'success',
+      data: {
+        token,
+        userId: rows[0].id
+      }
+    });
   } catch (error) {
     return res.status(500).send({
       status: 'error',

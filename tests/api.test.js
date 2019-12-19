@@ -1,7 +1,17 @@
 import request from 'supertest';
 import { expect } from 'chai';
-import server from '../src/index';
 import fs from 'fs';
+import server from '../src/index';
+
+const adminCredentials = {
+  email: 'ipkiruig83@gmail.com',
+  password: 'apisuperuser1'
+};
+
+const userCredentials = {
+  email: 'gyegon@patnassacco.co.ke',
+  password: 'apisuperuser1'
+};
 
 describe('unmatched routes', () => {
   it('GET /v1/auth it should return status of 404 and an array containing error', async () => {
@@ -13,9 +23,46 @@ describe('unmatched routes', () => {
   });
 });
 
+describe('Login in to user account', () => {
+  it('POST /api/v1/auth/signin With correct credentials it should return success and data object containing a token and userid', async () => {
+    const loginDetails = {
+      email: 'ipkiruig83@gmail.com',
+      password: 'apisuperuser1'
+    };
+    const response = await request(server)
+      .post('/api/v1/auth/signin')
+      .send(loginDetails);
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('status', 'success');
+    expect(response.body).to.have.property('data');
+    expect(response.body)
+      .to.have.property('data')
+      .to.be.a('object');
+    expect(response.body).to.be.a('object');
+    expect(response.body.data).to.have.property('token');
+    expect(response.body.data).to.have.property('userId');
+  });
+  it('POST /api/v1/auth/signin with incorrect credentilas it should return error and error message', async () => {
+    const loginDetails = {
+      email: 'yegon@patnassacco.co.ke',
+      password: 'Amin0207'
+    };
+    const response = await request(server)
+      .post('/api/v1/auth/signin')
+      .send(loginDetails);
+    expect(response.status).to.equal(401);
+    expect(response.body).to.be.a('object');
+    expect(response.body).to.have.property('status', 'error');
+    expect(response.body).to.have.property(
+      'error',
+      'invalid login credentials'
+    );
+  });
+});
+
 describe('Create user account', () => {
-  it('POST /api/v1/auth/create-user it should return success and data object of the user created', async () => {
-    const user_data = {
+  it('POST /api/v1/auth/create-user without a valid token it should return status error Token is not provided', async () => {
+    const userData = {
       firstName: 'Yegon',
       lastName: 'Kipkirui Geoffrey',
       email: 'gyegon@patnassacco.co.ke',
@@ -24,11 +71,31 @@ describe('Create user account', () => {
       jobRole: 'Admin',
       department: 'Bosa',
       address: 'P.o box 52-20204',
-      is_superuser: 'True'
+      is_superuser: 'false'
     };
     const response = await request(server)
       .post('/api/v1/auth/create-user')
-      .send(user_data);
+      .send(userData);
+    expect(response.status).to.equal(400);
+    expect(response.body).to.have.property('status', 'error');
+    expect(response.body).to.have.property('error', 'Token is not provided');
+  });
+
+  it('POST /api/v1/auth/create-user With Admin rights and a valid token it should return success and data object of the user created', async () => {
+    const userData = {
+      firstName: 'Yegon',
+      lastName: 'Kipkirui Geoffrey',
+      email: 'yegon@patnassacco.co.ke',
+      password: 'dgcaljos0207',
+      gender: 'Male',
+      jobRole: 'Admin',
+      department: 'Bosa',
+      address: 'P.o box 52-20204',
+      is_superuser: 'false'
+    };
+    const response = await request(server)
+      .post('/api/v1/auth/create-user')
+      .send(userData);
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
@@ -43,10 +110,8 @@ describe('Create user account', () => {
     expect(response.body.data).to.have.property('token');
     expect(response.body.data).to.have.property('userId');
   });
-});
 
-describe('Create user account with invalid information', () => {
-  it('POST /api/v1/auth/create-user it should return error and error message', async () => {
+  it('POST /api/v1/auth/create-user with incorrect user date it should return error and error message', async () => {
     const userData = {
       firstName: 'Yegon',
       lastName: 'Kipkirui Geoffrey',
@@ -65,43 +130,6 @@ describe('Create user account with invalid information', () => {
     expect(response.body).to.be.a('object');
     expect(response.body).to.have.property('status', 'error');
     expect(response.body).to.have.property('error');
-  });
-});
-
-describe('Login in to user account', () => {
-  it('POST /api/v1/auth/signin it should return success and data object of user logged in', async () => {
-    const loginDetails = {
-      email: 'gyegon@patnassacco.co.ke',
-      password: 'Admin0207'
-    };
-    const response = await request(server)
-      .post('/api/v1/auth/signin')
-      .send(loginDetails);
-    expect(response.status).to.equal(200);
-    expect(response.body).to.have.property('status', 'success');
-    expect(response.body).to.have.property('data');
-    expect(response.body)
-      .to.have.property('data')
-      .to.be.a('object');
-    expect(response.body).to.be.a('object');
-    expect(response.body).to.have.property('token');
-    expect(response.body).to.have.property('userId');
-  });
-});
-
-describe('Login in to user account with wrong credentials', () => {
-  it('POST /api/v1/auth/signin it should return error and error message', async () => {
-    const loginDetails = {
-      email: 'yegon@patnassacco.co.ke',
-      password: 'Amin0207'
-    };
-    const response = await request(server)
-      .post('/api/v1/auth/signin')
-      .send(loginDetails);
-    expect(response.status).to.equal(401);
-    expect(response.body).to.be.a('object');
-    expect(response.body).to.have.property('status', 'error');
-    expect(response.body).to.have.property('error', 'Wrong login credentials');
   });
 });
 
