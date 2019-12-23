@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const routesv1 = require('./routes/routes_v1');
+const routes = require('./routes/routes');
 
 const app = express();
 
@@ -21,7 +21,7 @@ app.use(
   })
 );
 
-app.use('/', routesv1);
+app.use('/', routes);
 
 // error handler for routes not found
 app.get('*', (req, res) => {
@@ -33,6 +33,30 @@ app.get('*', (req, res) => {
 });
 
 app.post('*', (req, res) => {
+  res.status(404);
+  res.json({
+    status: 'error',
+    error: 'Route not found'
+  });
+});
+
+app.put('*', (req, res) => {
+  res.status(404);
+  res.json({
+    status: 'error',
+    error: 'Route not found'
+  });
+});
+
+app.patch('*', (req, res) => {
+  res.status(404);
+  res.json({
+    status: 'error',
+    error: 'Route not found'
+  });
+});
+
+app.delete('*', (req, res) => {
   res.status(404);
   res.json({
     status: 'error',

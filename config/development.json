@@ -3,5 +3,10 @@
   "database": "postgres://teamOwner:Dteam5931@localhost:5932/teamwork",
   "dbName": "teamwork",
   "port": 3000,
-  "secret": "MyBoyCalebKipronoKirui"
+  "secret": "MyBoyCalebKipronoKirui",
+  "expiry": "2H",
+  "host": "smtp.mailtrap.io",
+  "email_port": 2525,
+  "user": "52e3bd1e430b41",
+  "pass": "8149ed0f1c9239"
 }
