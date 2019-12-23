@@ -4,13 +4,34 @@ const bcrypt = require('bcrypt');
 
 const { Pool } = require('pg');
 
+const debug = require('debug')('teamwork-backend-api:debug');
+
 const pool = new Pool({
   connectionString: config.get('database')
 });
 
+debug(
+  `current database connection- ${config.get('database')} and in ${config.get(
+    'name'
+  )} mode`
+);
+
+const dropTables = () => {
+  const dropDbTables =    'DROP TABLE IF EXISTS sys_users, articles, articles_flags, articles_comments, categories,gifs,gifs_flags,gif_comments,gif_comments,sys_logs CASCADE';
+  pool
+    .query(dropDbTables)
+    .then((res) => {
+      debug(res);
+      pool.end();
+    })
+    .catch((err) => {
+      debug(err);
+      pool.end();
+    });
+};
+
 const createTables = () => {
-  const teamWorkDb = `DROP TABLE IF EXISTS sys_users, articles, articles_flags, articles_comments, categories,gifs,gifs_flags,gif_comments,gif_comments,sys_logs CASCADE;
-  CREATE TABLE IF NOT EXISTS
+  const teamWorkDb = `CREATE TABLE IF NOT EXISTS
       sys_users(
         id SERIAL PRIMARY KEY,
         password VARCHAR NOT NULL,
@@ -104,11 +125,11 @@ const createTables = () => {
   pool
     .query(teamWorkDb)
     .then((res) => {
-      console.log(res);
+      debug(res);
       pool.end();
     })
     .catch((err) => {
-      console.log(err);
+      debug(err);
       pool.end();
     });
 };
@@ -137,17 +158,17 @@ const alterTables = () => {
   pool
     .query(updateTables)
     .then((res) => {
-      console.log(res);
+      debug(res);
       pool.end();
     })
     .catch((err) => {
-      console.log(err);
+      debug(err);
       pool.end();
     });
 };
 
 const createSuperUser = () => {
-  const superUser = 'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12)';
+  const superUser =    'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12)';
   const hash = bcrypt.hashSync('apisuperuser1', 10);
   const values = [
     hash,
@@ -166,11 +187,40 @@ const createSuperUser = () => {
   pool
     .query(superUser, values)
     .then((res) => {
-      console.log(res);
+      debug(res);
       pool.end();
     })
     .catch((err) => {
-      console.log(err);
+      debug(err);
+      pool.end();
+    });
+};
+
+const createNormalUser = () => {
+  const normalUser =    'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12)';
+  const hash = bcrypt.hashSync('apisuperuser1', 10);
+  const values = [
+    hash,
+    'Yegon',
+    'Kipkirui Geoffrey',
+    'gyegon@patnassacco.co.ke',
+    '0774395251',
+    'false',
+    'Change',
+    0,
+    'Male',
+    'Administrator',
+    'ICT',
+    'P.o Box 52-20204'
+  ];
+  pool
+    .query(normalUser, values)
+    .then((res) => {
+      debug(res);
+      pool.end();
+    })
+    .catch((err) => {
+      debug(err);
       pool.end();
     });
 };
@@ -178,7 +228,12 @@ const createSuperUser = () => {
 //  export pool and createTables to be accessible  from anywhere within the application
 
 module.exports = {
-  createTables, alterTables, createSuperUser, pool
+  createTables,
+  alterTables,
+  createSuperUser,
+  pool,
+  createNormalUser,
+  dropTables
 };
 
 require('make-runnable');

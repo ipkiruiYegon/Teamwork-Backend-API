@@ -1,6 +1,6 @@
 const config = require('config');
 
-const debug = require('debug')('server:debug');
+const debug = require('debug')('teamwork-backend-api:debug');
 
 const app = require('./app');
 

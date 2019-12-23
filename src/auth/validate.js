@@ -1,7 +1,4 @@
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const config = require('config');
-const moment = require('moment');
 const db = require('../db/index.js');
 
 const Validate = {
@@ -35,32 +32,6 @@ const Validate = {
     } catch (error) {
       return false;
     }
-  },
-
-  async updateLogin(userId) {
-    const loginDate = moment().format();
-    const updateLogin =      'UPDATE sys_users set last_login=$1 where id=$2 returning id';
-    const { rows } = await db.query(updateLogin, [loginDate, userId]);
-    try {
-      if (!rows[0].id) {
-        return false;
-      }
-      return true;
-    } catch (error) {
-      return false;
-    }
-  },
-
-  generateToken(id) {
-    const secretWord = config.get('secret');
-    const token = jwt.sign(
-      {
-        userId: id
-      },
-      secretWord,
-      { expiresIn: '4H' }
-    );
-    return token;
   }
 };
 
