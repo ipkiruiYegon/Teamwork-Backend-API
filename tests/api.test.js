@@ -12,7 +12,7 @@ const userCredentials = {
   email: 'gyegon@patnassacco.co.ke',
   password: 'apisuperuser1'
 };
-const login = async (data) => {
+const login = async data => {
   const resToken = await request(server)
     .post('/api/v1/auth/signin')
     .send(data);
@@ -100,35 +100,13 @@ describe('Login in to user account', () => {
       expect(response.status).to.equal(401);
       expect(response.body).to.be.a('object');
       expect(response.body).to.have.property('status', 'error');
-      expect(response.body).to.have.property(
-        'error',
-        'invalid login credentials'
-      );
+      expect(response.body).to.have.property('error');
     });
   });
 });
 
 describe('Create user account', () => {
   describe('POST /api/v1/auth/create-user', () => {
-    it('it should return status error Token is not provided when request is made without a valid token', async () => {
-      const userData = {
-        firstName: 'Yegon',
-        lastName: 'Kipkirui Geoffrey',
-        email: 'gyegon@patnassacco.co.ke',
-        gender: 'Male',
-        jobRole: 'Administrator',
-        department: 'Bosa',
-        address: 'P.o box 52-20204',
-        is_superuser: 'false'
-      };
-      const response = await request(server)
-        .post('/api/v1/auth/create-user')
-        .send(userData);
-      expect(response.status).to.equal(401);
-      expect(response.body).to.have.property('status', 'error');
-      expect(response.body).to.have.property('error', 'Token is not provided');
-    });
-
     it('it should return success and data object of the user created when a valid post request is made- With Admin rights and a valid token', async () => {
       const userData = {
         firstName: 'Yegonic',
@@ -180,10 +158,6 @@ describe('Create user account', () => {
         .send(userData);
       expect(response.status).to.equal(401);
       expect(response.body).to.have.property('status', 'error');
-      expect(response.body).to.have.property(
-        'error',
-        'Only Admin can create system users'
-      );
     });
 
     it('it should return error and error message when the post request is made with incorrect or incomplete user data', async () => {

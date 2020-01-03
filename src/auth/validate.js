@@ -1,13 +1,24 @@
 const bcrypt = require('bcrypt');
+const debug = require('debug')('teamwork-backend-api:debug');
 const db = require('../db/index.js');
 
 const Validate = {
+  // eslint-disable-next-line consistent-return
   hashPassword(password) {
-    return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+    try {
+      return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+    } catch (error) {
+      debug(error);
+    }
   },
 
+  // eslint-disable-next-line consistent-return
   comparePassword(hashPassword, password) {
-    return bcrypt.compareSync(password, hashPassword);
+    try {
+      return bcrypt.compareSync(password, hashPassword);
+    } catch (error) {
+      debug(error);
+    }
   },
 
   isValidEmail(email) {
@@ -15,21 +26,23 @@ const Validate = {
   },
 
   async isEmailUsed(email) {
-    const text = 'SELECT EXISTS (SELECT 1 FROM sys_users WHERE email = $1)';
     try {
+      const text = 'SELECT EXISTS (SELECT 1 FROM sys_users WHERE email = $1)';
       const { rows } = await db.query(text, [email]);
       return rows[0].exists;
     } catch (error) {
+      debug(error);
       return false;
     }
   },
 
   async isPhoneUsed(phone) {
-    const textP = 'SELECT EXISTS(SELECT 1 FROM sys_users WHERE phone = $1)';
     try {
+      const textP = 'SELECT EXISTS(SELECT 1 FROM sys_users WHERE phone = $1)';
       const { rows } = await db.query(textP, [phone]);
       return rows[0].exists;
     } catch (error) {
+      debug(error);
       return false;
     }
   }

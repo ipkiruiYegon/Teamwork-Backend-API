@@ -4,5 +4,8 @@
   "dbName": "teamwork",
   "port": 3000,
   "secret": "AndWhatsoeveryoudo,doitheartily,astotheLord,andnotuntomen",
-  "expiry": "1H"
+  "expiry": "1H",
+  "CLOUDINARY_CLOUD_NAME": "ipkiruiyegon",
+  "CLOUDINARY_API_KEY": "732895244163342",
+  "CLOUDINARY_API_SECRET": "UAOKCAK9I5t1sbXleDksgsUEg6I"
 }

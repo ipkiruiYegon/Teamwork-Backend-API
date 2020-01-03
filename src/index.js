@@ -10,11 +10,12 @@ const listen = app.listen(config.get('port'), () => {
       'name'
     )} mode`
   );
-  console.log(
-    `server is running on port ${config.get('port')} and in ${config.get(
-      'name'
-    )} mode`
-  );
+
+  // console.log(
+  //   `server is running on port ${config.get('port')} and in ${config.get(
+  //     'name'
+  //   )} mode`
+  // );
 });
 
 module.exports = app;
