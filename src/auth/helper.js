@@ -9,8 +9,7 @@ const Helper = {
   async updateLogin(userId) {
     try {
       const loginDate = moment().format();
-      const updateLogin =
-        'UPDATE sys_users set last_login=$1 where id=$2 returning id';
+      const updateLogin = 'UPDATE sys_users set last_login=$1 where id=$2 returning id';
       const { rows } = await db.query(updateLogin, [loginDate, userId]);
 
       if (!rows[0].id) {
@@ -23,6 +22,12 @@ const Helper = {
     }
   },
 
+  toTitleCase(word) {
+    return word
+      .split(' ')
+      .map((w) => w[0].toUpperCase() + w.substr(1).toLowerCase())
+      .join(' ');
+  },
   generateToken(id) {
     const secretWord = config.get('secret');
     const expiry = config.get('expiry');

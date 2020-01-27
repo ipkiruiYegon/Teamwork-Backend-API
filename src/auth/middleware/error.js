@@ -10,13 +10,19 @@ class ErrorHandler extends Error {
 
 const handleError = (err, res) => {
   const { statusCode, message } = err;
-  debug(message);
-
-  res.status(statusCode || 500);
-  res.json({
-    status: 'error',
-    error: 'An internal error occurred while processing your request'
-  });
+  if (debug) {
+    res.status(statusCode || 500);
+    res.json({
+      status: 'error',
+      error: message
+    });
+  } else {
+    res.status(statusCode || 500);
+    res.json({
+      status: 'error',
+      error: 'An internal error occurred while processing your request'
+    });
+  }
 };
 
 module.exports = {

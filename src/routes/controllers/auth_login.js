@@ -18,33 +18,32 @@ router.post(
   async (req, res, next) => {
     try {
       if (
-        !req.body.firstName ||
-        !req.body.lastName ||
-        !req.body.email ||
-        !req.body.phone ||
-        !req.body.is_superuser ||
-        !req.body.gender ||
-        !req.body.jobRole ||
-        !req.body.department ||
-        !req.body.address
+        !req.body.firstName
+        || !req.body.lastName
+        || !req.body.email
+        || !req.body.phone
+        || !req.body.is_superuser
+        || !req.body.gender
+        || !req.body.jobRole
+        || !req.body.department
+        || !req.body.address
       ) {
-        throw new ErrorHandler(401, 'incomplete user details');
+        return next(new ErrorHandler(401, 'incomplete user details'));
       }
       if (!Validate.isValidEmail(req.body.email)) {
-        throw new ErrorHandler(401, 'invalid user email address');
+        return next(new ErrorHandler(401, 'invalid user email address'));
       }
       // console.log(await Validate.isEmailUsed(req.body.email));
       if (await Validate.isEmailUsed(req.body.email)) {
-        throw new ErrorHandler(401, 'email address already in use');
+        return next(new ErrorHandler(401, 'email address already in use'));
       }
 
       if (await Validate.isPhoneUsed(req.body.phone)) {
-        throw new ErrorHandler(401, 'phone already in use');
+        return next(new ErrorHandler(401, 'phone already in use'));
       }
       const password = randomstring.generate(6);
       const hash = bcrypt.hashSync(password, 10);
-      const user =
-        'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12) returning id';
+      const user = 'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12) returning id';
       const { rows } = await db.query(user, [
         hash,
         req.body.firstName,
@@ -61,7 +60,7 @@ router.post(
       ]);
 
       if (!rows[0].id) {
-        throw new ErrorHandler(500, 'An error occured while saving the user');
+        return next(new ErrorHandler(500, 'An error occured while saving the user'));
       }
       const message = {
         from: 'ipkiruig83@gmail.com', // Sender address
@@ -70,10 +69,10 @@ router.post(
         text: `You have been successfully registered to access this app. your password is ${password}` // Plain text body
       };
       if (await !Helper.sendMail(message)) {
-        throw new ErrorHandler(
+        return next(new ErrorHandler(
           500,
           'An error occured while sending mail to the user'
-        );
+        ));
       }
       const token = Helper.generateToken(rows[0].id);
       res.status(201);

@@ -5,4 +5,3 @@ dist
 config/development.json
 config/production.json
 config/test.json
-package-lock.json
