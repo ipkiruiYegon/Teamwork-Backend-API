@@ -4,9 +4,5 @@
   "dbName": "test_db",
   "port": 3100,
   "secret": "TESTFORMYAPISROUTES",
-  "expiry": "1H",
-  "host": "smtp.mailtrap.io",
-  "email_port": 2525,
-  "user": "52e3bd1e430b41",
-  "pass": "8149ed0f1c9239"
+  "expiry": "1H"
 }

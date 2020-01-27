@@ -57,7 +57,7 @@ const createTables = () => {
         category VARCHAR(128) NOT NULL,
         title VARCHAR(150) NOT NULL,
         text VARCHAR NOT NULL,
-        createdOn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        posted_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         article_flagged BOOLEAN NOT NULL DEFAULT FALSE,
         user_id SERIAL NOT NULL
       );

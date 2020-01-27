@@ -1,64 +1,106 @@
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const debug = require('debug')('teamwork-backend-api:debug');
 const db = require('../../db/index.js');
+const { ErrorHandler } = require('../../auth/middleware/error');
 
 const Auth = {
   // eslint-disable-next-line consistent-return
   async verifyToken(req, res, next) {
-    if (!req.headers.authorization) {
-      return res
-        .status(400)
-        .send({ status: 'error', error: 'Token is not provided' });
-    }
+    // debug(req.headers);
+    debug(req.body);
     try {
-      const token = req.headers.authorization.split(' ')[1];
-      const secretWord = config.get('secret');
-      const decoded = await jwt.verify(token, secretWord);
-      const text = 'SELECT * FROM sys_users WHERE id = $1';
-      const { rows } = await db.query(text, [decoded.userId]);
-      if (!rows[0]) {
-        return res.status(400).send({
-          status: 'error',
-          error: 'The userid token you provided is invalid'
-        });
+      if (!req.headers.token && !req.headers.authorization) {
+        throw new ErrorHandler(401, 'Token is not provided');
       }
-      req.user = { id: decoded.userId };
-      next();
+      // const token = await req.headers.authorization.split(' ')[1];
+      if (req.headers.token) {
+        const token = await req.headers.token;
+        const secretWord = config.get('secret');
+        const decoded = await jwt.verify(token, secretWord);
+        const user = decoded.userId;
+        // debug(user);
+        const text = 'SELECT * FROM sys_users WHERE id = $1';
+        const { rows } = await db.query(text, [user]);
+        if (!rows[0]) {
+          throw new ErrorHandler(401, 'User not Found');
+        }
+        debug(req.body.userId);
+        if (req.body.userId && req.body.userId !== user) {
+          throw new ErrorHandler(401, 'invalid user token');
+        } else {
+          req.user = { id: user };
+          next();
+        }
+      } else if (req.headers.authorization) {
+        const token = req.headers.authorization.split(' ')[1];
+        const secretWord = config.get('secret');
+        const decoded = await jwt.verify(token, secretWord);
+        const user = decoded.userId;
+        // debug(user);
+        const text = 'SELECT * FROM sys_users WHERE id = $1';
+        const { rows } = await db.query(text, [user]);
+        if (!rows[0]) {
+          throw new ErrorHandler(401, 'User not Found');
+        }
+        debug(req.body.userId, req.body.userId !== user);
+        if (req.body.userId && req.body.userId !== user) {
+          throw new ErrorHandler(401, 'invalid user token');
+        } else {
+          req.user = { id: user };
+          next();
+        }
+      }
     } catch (error) {
-      return res.status(500).send({
-        status: 'error',
-        error
-      });
+      debug(error);
+      next(error);
     }
   },
 
   // eslint-disable-next-line consistent-return
   async verifyTokenAdmin(req, res, next) {
-    if (!req.headers.authorization) {
-      return res
-        .status(401)
-        .send({ status: 'error', error: 'Token is not provided' });
-    }
     try {
-      const token = req.headers.authorization.split(' ')[1];
-      const secretWord = config.get('secret');
-      const decoded = await jwt.verify(token, secretWord);
-      const text =
-        'SELECT * FROM sys_users WHERE id = $1 and is_superuser = $2';
-      const { rows } = await db.query(text, [decoded.userId, 'True']);
-      if (!rows[0]) {
-        return res.status(401).send({
-          status: 'error',
-          error: 'Only Admin can create system users'
-        });
+      if (!req.headers.token && !req.headers.authorization) {
+        throw new ErrorHandler(401, 'Token is not provided');
       }
-      req.user = { id: decoded.userId };
-      next();
+      if (req.headers.token) {
+        const token = await req.headers.token;
+        const secretWord = config.get('secret');
+        const decoded = await jwt.verify(token, secretWord);
+        const user = decoded.userId;
+        const text =
+          'SELECT * FROM sys_users WHERE id = $1 and is_superuser = $2';
+        const { rows } = await db.query(text, [user, 'True']);
+        if (!rows[0]) {
+          throw new ErrorHandler(401, 'Only Admin can create system users');
+        }
+        if (req.body.userId && req.body.userId !== user) {
+          throw new ErrorHandler(401, 'invalid user token');
+        }
+        req.user = { id: user };
+        next();
+      } else if (req.headers.authorization) {
+        const token = req.headers.authorization.split(' ')[1];
+        const secretWord = config.get('secret');
+        const decoded = await jwt.verify(token, secretWord);
+        const user = decoded.userId;
+        debug(decoded);
+        debug(user);
+        const text =
+          'SELECT * FROM sys_users WHERE id = $1 and is_superuser = $2';
+        const { rows } = await db.query(text, [user, 'True']);
+        if (!rows[0]) {
+          throw new ErrorHandler(401, 'Only Admin can create system users');
+        }
+        if (req.body.userId && req.body.userId !== user) {
+          throw new ErrorHandler(401, 'invalid user token');
+        }
+        req.user = { id: user };
+        next();
+      }
     } catch (error) {
-      return res.status(500).send({
-        status: 'error',
-        error
-      });
+      debug(error);
+      next(error);
     }
   }
 };

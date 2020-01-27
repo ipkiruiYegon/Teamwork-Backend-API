@@ -2,23 +2,32 @@ const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const moment = require('moment');
+const debug = require('debug')('teamwork-backend-api:debug');
 const db = require('../db/index.js');
 
 const Helper = {
   async updateLogin(userId) {
-    const loginDate = moment().format();
-    const updateLogin =      'UPDATE sys_users set last_login=$1 where id=$2 returning id';
-    const { rows } = await db.query(updateLogin, [loginDate, userId]);
     try {
+      const loginDate = moment().format();
+      const updateLogin = 'UPDATE sys_users set last_login=$1 where id=$2 returning id';
+      const { rows } = await db.query(updateLogin, [loginDate, userId]);
+
       if (!rows[0].id) {
         return false;
       }
       return true;
     } catch (error) {
+      debug(error);
       return false;
     }
   },
 
+  toTitleCase(word) {
+    return word
+      .split(' ')
+      .map((w) => w[0].toUpperCase() + w.substr(1).toLowerCase())
+      .join(' ');
+  },
   generateToken(id) {
     const secretWord = config.get('secret');
     const expiry = config.get('expiry');
@@ -44,11 +53,11 @@ const Helper = {
     // eslint-disable-next-line consistent-return
     transport.sendMail(message, (err, info) => {
       if (err) {
-        console.log(err);
+        debug(err);
         return false;
       }
       if (info) {
-        console.log(info);
+        debug(info);
         return true;
       }
     });
