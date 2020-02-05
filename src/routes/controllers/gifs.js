@@ -26,15 +26,24 @@ router.get('/feed', Auth.verifyToken, async (req, res) => {
 });
 
 router.get('/gifs', Auth.verifyToken, async (req, res) => {
-  const sql = 'SELECT gifs.id as id, gifs.category as title, gifs.gifurl as url, gifs.text as text, gifs.posted_date as createdOn, gifs.gif_flagged as flagged, gifs.user_id AS authorId,count(gif_comments.id) as comments FROM gifs LEFT JOIN gif_comments ON gifs.id = gif_comments.gif GROUP BY gifs.id ORDER BY posted_date DESC';
-  const { rows } = await db.query(sql);
-  debug(rows);
-  if (rows) {
-    res.status(200);
-    res.json({
-      status: 'success',
-      data: rows
-    });
+  try {
+    const sql =
+      'SELECT gifs.id as id, gifs.category as title, gifs.gifurl as url, gifs.text as text, gifs.posted_date as createdOn, gifs.gif_flagged as flagged, gifs.user_id AS authorId,count(gif_comments.id) as comments FROM gifs LEFT JOIN gif_comments ON gifs.id = gif_comments.gif GROUP BY gifs.id ORDER BY posted_date DESC';
+    const { rows } = await db.query(sql);
+    debug(rows);
+    if (rows) {
+      res.status(200);
+      res.json({
+        status: 'success',
+        data: rows
+      });
+    }
+  } catch (error) {
+    debug(error);
+    throw new ErrorHandler(
+      500,
+      'something went wrong while processing your request'
+    );
   }
 });
 
@@ -60,7 +69,8 @@ router.post('/gifs', Auth.verifyToken, multerUploads, async (req, res) => {
         const category = Helper.toTitleCase(req.body.category);
         const text = Helper.toTitleCase(req.body.text);
         // debug(results);
-        const gif = 'INSERT INTO gifs(category, gifurl, text, user_id) VALUES ($1, $2, $3, $4) returning *';
+        const gif =
+          'INSERT INTO gifs(category, gifurl, text, user_id) VALUES ($1, $2, $3, $4) returning *';
         const { rows } = await db.query(gif, [
           category.trim(),
           results.url,
@@ -124,7 +134,8 @@ router.get('/gifs/:gifId', Auth.verifyToken, async (req, res) => {
             message: 'Gif not found'
           });
         }
-        const sql2 = 'select id as commentId,user_id as authorId,text as comment from gif_comments where gif=$1 ORDER BY comment_date desc';
+        const sql2 =
+          'select id as commentId,user_id as authorId,text as comment from gif_comments where gif=$1 ORDER BY comment_date desc';
         const comments = await db.query(sql2, [gifId]);
         res.status(200);
         res.json({
@@ -191,7 +202,10 @@ router.delete('/gifs/:gifId', Auth.verifyToken, async (req, res) => {
             }
             return res.status(200).json({
               status: 'success',
-              data: { message: 'gif post successfully deleted' }
+              data: {
+                message: 'gif post successfully deleted',
+                gifId: deletedGif.rows[0].id
+              }
             });
           }
           const deletedG = await db.query(delG, [rows[0].id]);
@@ -204,11 +218,15 @@ router.delete('/gifs/:gifId', Auth.verifyToken, async (req, res) => {
           res.status(200);
           res.json({
             status: 'success',
-            data: { message: 'gif post successfully deleted' }
+            data: {
+              message: 'gif post successfully deleted',
+              gifId: deletedG.rows[0].id
+            }
           });
         } else {
           /* check if user is admin and GIF has been flagged as inappropriate */
-          const sql2 = 'SELECT * FROM sys_users WHERE id = $1 and is_superuser = $2';
+          const sql2 =
+            'SELECT * FROM sys_users WHERE id = $1 and is_superuser = $2';
           const admin = await db.query(sql2, [req.user.id, 'True']);
           if (!admin.rows[0]) {
             return res.status(401).json({
@@ -242,7 +260,10 @@ router.delete('/gifs/:gifId', Auth.verifyToken, async (req, res) => {
             }
             return res.status(200).json({
               status: 'success',
-              data: { message: 'gif post flagged successfully deleted' }
+              data: {
+                message: 'gif post flagged successfully deleted',
+                gifId: deletedGif.rows[0].id
+              }
             });
           }
           const deletedG = await db.query(delG2, [rows[0].id]);
@@ -255,9 +276,85 @@ router.delete('/gifs/:gifId', Auth.verifyToken, async (req, res) => {
           res.status(200);
           res.json({
             status: 'success',
-            data: { message: 'gif post flagged successfully deleted' }
+            data: {
+              message: 'gif post flagged successfully deleted',
+              gifId: deletedG.rows[0].id
+            }
           });
         }
+      } else {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Incomplete request'
+        });
+      }
+    } catch (error) {
+      debug(error);
+      throw new ErrorHandler(
+        500,
+        'something went wrong while processing your request'
+      );
+    }
+  } else {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Incomplete request'
+    });
+  }
+});
+
+router.patch('/gifs/:gifId/flag', Auth.verifyToken, async (req, res) => {
+  debug(req.params);
+  if (req.params && req.body.reason) {
+    try {
+      const gifId = Number(req.params.gifId);
+      if (Number.isInteger(gifId)) {
+        const sql = 'Select * from gifs where id=$1';
+        const { rows } = await db.query(sql, [gifId]);
+        if (!rows[0]) {
+          return res.status(404).json({
+            status: 'error',
+            message: 'Gif not found'
+          });
+        }
+        const reason = Helper.toTitleCase(req.body.reason);
+        const flagged = await db.query(
+          'Select * from gifs where gif_flagged=$1 and id=$2',
+          ['True', gifId]
+        );
+        if (!flagged.rows[0]) {
+          const gifFlag = await db.query(
+            'UPDATE gifs SET gif_flagged=$1 where id=$2 returning *',
+            ['True', gifId]
+          );
+          if (!gifFlag.rows[0]) {
+            return res.status(500).json({
+              status: 'error',
+              message: 'something went wrong while processing your request'
+            });
+          }
+        }
+        const flag = await db.query(
+          'INSERT INTO gifs_flags(gif, reason, user_id) VALUES ($1, $2, $3) returning *',
+          [gifId, reason, req.user.id]
+        );
+        if (!flag.rows[0]) {
+          return res.status(500).json({
+            status: 'error',
+            message: 'something went wrong while processing your request'
+          });
+        }
+        res.status(200);
+        res.json({
+          status: 'success',
+          data: {
+            message: 'gif successfully flagged as inapproriate',
+            gifId,
+            flagId: flag.rows[0].id,
+            reason: flag.rows[0].reason,
+            userId: flag.rows[0].user_id
+          }
+        });
       } else {
         return res.status(400).json({
           status: 'error',
