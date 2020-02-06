@@ -291,4 +291,77 @@ router.patch('/articles/:articleId', Auth.verifyToken, async (req, res) => {
   }
 });
 
+router.patch('/articles/:articleId/flag', Auth.verifyToken, async (req, res) => {
+  debug(req.params);
+  if (req.params && req.body.reason) {
+    try {
+      const articleId = Number(req.params.articleId);
+      if (Number.isInteger(articleId)) {
+        const sql = 'Select * from articles where id=$1';
+        const { rows } = await db.query(sql, [articleId]);
+        if (!rows[0]) {
+          return res.status(404).json({
+            status: 'error',
+            message: 'Article not found'
+          });
+        }
+        const reason = Helper.toTitleCase(req.body.reason);
+        const flagged = await db.query(
+          'Select * from articles where article_flagged=$1 and id=$2',
+          ['True', articleId]
+        );
+        if (!flagged.rows[0]) {
+          const articleFlag = await db.query(
+            'UPDATE articles SET article_flagged=$1 where id=$2 returning *',
+            ['True', articleId]
+          );
+          if (!articleFlag.rows[0]) {
+            return res.status(500).json({
+              status: 'error',
+              message: 'something went wrong while processing your request'
+            });
+          }
+        }
+        const flag = await db.query(
+          'INSERT INTO articles_flags(article, reason, user_id) VALUES ($1, $2, $3) returning *',
+          [articleId, reason, req.user.id]
+        );
+        if (!flag.rows[0]) {
+          return res.status(500).json({
+            status: 'error',
+            message: 'something went wrong while processing your request'
+          });
+        }
+        res.status(200);
+        res.json({
+          status: 'success',
+          data: {
+            message: 'gif successfully flagged as inapproriate',
+            articleId,
+            flagId: flag.rows[0].id,
+            reason: flag.rows[0].reason,
+            userId: flag.rows[0].user_id
+          }
+        });
+      } else {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Incomplete request'
+        });
+      }
+    } catch (error) {
+      debug(error);
+      throw new ErrorHandler(
+        500,
+        'something went wrong while processing your request'
+      );
+    }
+  } else {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Incomplete request'
+    });
+  }
+});
+
 module.exports = router;

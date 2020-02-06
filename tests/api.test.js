@@ -14,7 +14,7 @@ const userCredentials = {
   email: 'gyegon@patnassacco.co.ke',
   password: 'apisuperuser1'
 };
-const login = async (data) => {
+const login = async data => {
   const resToken = await request(server)
     .post('/api/v1/auth/signin')
     .send(data);
@@ -299,7 +299,8 @@ describe('Edit an article', () => {
       const article = {
         category: 'Test',
         title: 'Mocha',
-        article: 'Doing test in a node js application with Mocha is a good practice.',
+        article:
+          'Doing test in a node js application with Mocha is a good practice.',
         userId: 2
       };
       const articleTest = await request(server)
@@ -308,12 +309,14 @@ describe('Edit an article', () => {
         .send(article);
       const editedArticle = {
         title: 'Mocha Test',
-        article: 'Doing test in a node js application with Mocha is a good practice.It not only speed up development but also helps the developer incase of an error.',
+        article:
+          'Doing test in a node js application with Mocha is a good practice.It not only speed up development but also helps the developer incase of an error.',
         userId: 2
       };
-      const response = await request(server).patch(
-        `/api/v1/articles/${articleTest.body.data.articleId}`
-      ).set('Authorization', `Bearer ${token}`).send(editedArticle);
+      const response = await request(server)
+        .patch(`/api/v1/articles/${articleTest.body.data.articleId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(editedArticle);
       expect(response.status).to.equal(201);
       expect(response.body).to.have.property('status', 'success');
       expect(response.body).to.have.property('data');
@@ -334,9 +337,9 @@ describe('Edit an article', () => {
 describe('Employees can delete their articles', () => {
   it('DELETE /api/v1/articles/:articleId it should return', async () => {
     const token = await login(adminCredentials);
-    const response = await request(server).delete(
-      '/api/v1/articles/1'
-    ).set('Authorization', `Bearer ${token}`);
+    const response = await request(server)
+      .delete('/api/v1/articles/1')
+      .set('Authorization', `Bearer ${token}`);
     expect(response.status).to.equal(200);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
@@ -416,6 +419,90 @@ describe('Admin can delete gifs flagged as inapproprate', () => {
       expect(response.body.data).to.have.property(
         'message',
         'gif post flagged successfully deleted'
+      );
+    });
+  });
+});
+
+describe('Employees can flag a gif as inapproprate', () => {
+  describe('PATCH /api/v1/gifs/:gifId/flag', () => {
+    it('it should return status success', async () => {
+      const token = await login(adminCredentials);
+      const userToken = await login(userCredentials);
+      const gif = await request(server)
+        .post('/api/v1/gifs')
+        .set('Content-Type', 'application/x-www-form-urlencoded')
+        .set('Authorization', `Bearer ${token}`)
+        .field('category', 'Test')
+        .field('text', 'Test for mocha')
+        .field('userId', 1)
+        .attach(
+          'gif',
+          fs.readFileSync(
+            'C:/Users/Stallion Stud/Desktop/received_1475019652647734.gif'
+          ),
+          'christmas.gif'
+        );
+      // console.log(flag);
+
+      const response = await request(server)
+        .patch(`/api/v1/gifs/${gif.body.data.gifId}/flag`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({
+          reason: 'not allowed',
+          userId: 2
+        });
+      expect(response.status).to.equal(200);
+      expect(response.body).to.have.property('status', 'success');
+      expect(response.body).to.have.property('data');
+      expect(response.body)
+        .to.have.property('data')
+        .to.be.a('object');
+      expect(response.body).to.be.a('object');
+      expect(response.body.data).to.have.property(
+        'message',
+        'gif successfully flagged as inapproriate'
+      );
+    });
+  });
+});
+
+describe('Employees can flag an article as inapproprate', () => {
+  describe('PATCH /api/v1/articles/:articleId/flag', () => {
+    it('it should return status success', async () => {
+      const token = await login(adminCredentials);
+      const userToken = await login(userCredentials);
+      const article = await request(server)
+        .post('/api/v1/articles')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          category: 'Test',
+          title: 'Mocha',
+          article:
+            'Doing test in a node js application with Mocha is a good practice.',
+          userId: 1
+        });
+      // console.log(flag);
+
+      const response = await request(server)
+        .patch(`/api/v1/articles/${article.body.data.articleId}/flag`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({
+          reason: 'not allowed',
+          userId: 2
+        });
+      expect(response.status).to.equal(200);
+      expect(response.body).to.have.property('status', 'success');
+      expect(response.body).to.have.property('data');
+      expect(response.body)
+        .to.have.property('data')
+        .to.be.a('object');
+      expect(response.body).to.be.a('object');
+      expect(response.body.data).to.have.property(
+        'message',
+        'gif successfully flagged as inapproriate'
       );
     });
   });
