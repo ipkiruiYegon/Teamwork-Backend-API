@@ -7,8 +7,6 @@ const { ErrorHandler } = require('../../auth/middleware/error');
 const Auth = {
   // eslint-disable-next-line consistent-return
   async verifyToken(req, res, next) {
-    // debug(req.headers);
-    debug(req.body);
     try {
       if (!req.headers.token && !req.headers.authorization) {
         throw new ErrorHandler(401, 'Token is not provided');
@@ -25,7 +23,6 @@ const Auth = {
         if (!rows[0]) {
           throw new ErrorHandler(401, 'User not Found');
         }
-        debug(req.body.userId);
         if (req.body.userId && req.body.userId !== user) {
           throw new ErrorHandler(401, 'invalid user token');
         } else {

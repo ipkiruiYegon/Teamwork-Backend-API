@@ -293,29 +293,53 @@ describe('Create an article', () => {
 });
 
 describe('Edit an article', () => {
-  it('PATCH /api/v1/articles/:articleId it should return article updated', async () => {
-    const response = await request(server).patch('/api/v1/articles/:articleId');
-    expect(response.status).to.equal(201);
-    expect(response.body).to.have.property('status', 'success');
-    expect(response.body).to.have.property('data');
-    expect(response.body)
-      .to.have.property('data')
-      .to.be.a('object');
-    expect(response.body).to.be.a('object');
-    expect(response.body.data).to.have.property(
-      'message',
-      'Article successfully updated'
-    );
-    expect(response.body.data).to.have.property('title');
-    expect(response.body.data).to.have.property('article');
+  describe('PATCH /api/v1/articles/:articleId', () => {
+    it('it should return success and the article updated', async () => {
+      const token = await login(userCredentials);
+      const article = {
+        category: 'Test',
+        title: 'Mocha',
+        article:
+          'Doing test in a node js application with Mocha is a good practice.',
+        userId: 2
+      };
+      const articleTest = await request(server)
+        .post('/api/v1/articles')
+        .set('Authorization', `Bearer ${token}`)
+        .send(article);
+      const editedArticle = {
+        title: 'Mocha Test',
+        article:
+          'Doing test in a node js application with Mocha is a good practice.It not only speed up development but also helps the developer incase of an error.',
+        userId: 2
+      };
+      const response = await request(server)
+        .patch(`/api/v1/articles/${articleTest.body.data.articleId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(editedArticle);
+      expect(response.status).to.equal(201);
+      expect(response.body).to.have.property('status', 'success');
+      expect(response.body).to.have.property('data');
+      expect(response.body)
+        .to.have.property('data')
+        .to.be.a('object');
+      expect(response.body).to.be.a('object');
+      expect(response.body.data).to.have.property(
+        'message',
+        'Article successfully updated'
+      );
+      expect(response.body.data).to.have.property('title');
+      expect(response.body.data).to.have.property('article');
+    });
   });
 });
 
 describe('Employees can delete their articles', () => {
   it('DELETE /api/v1/articles/:articleId it should return', async () => {
-    const response = await request(server).delete(
-      '/api/v1/articles/:articleId'
-    );
+    const token = await login(adminCredentials);
+    const response = await request(server)
+      .delete('/api/v1/articles/1')
+      .set('Authorization', `Bearer ${token}`);
     expect(response.status).to.equal(200);
     expect(response.body).to.have.property('status', 'success');
     expect(response.body).to.have.property('data');
@@ -347,6 +371,138 @@ describe('Employees can delete their gifs', () => {
       expect(response.body.data).to.have.property(
         'message',
         'gif post successfully deleted'
+      );
+    });
+  });
+});
+
+describe('Admin can delete gifs flagged as inapproprate', () => {
+  describe('DELETE /api/v1/gifs/:gifId', () => {
+    it('it should return status success', async () => {
+      const token = await login(adminCredentials);
+      const userToken = await login(userCredentials);
+      const gif = await request(server)
+        .post('/api/v1/gifs')
+        .set('Content-Type', 'application/x-www-form-urlencoded')
+        .set('Authorization', `Bearer ${userToken}`)
+        .field('category', 'Celebration')
+        .field('text', 'Happy and merry xmas')
+        .field('userId', 2)
+        .attach(
+          'gif',
+          fs.readFileSync(
+            'C:/Users/Stallion Stud/Desktop/received_1475019652647734.gif'
+          ),
+          'christmas.gif'
+        );
+      // console.log(gif.body.data.gifId);
+      const flag = await request(server)
+        .patch(`/api/v1/gifs/${gif.body.data.gifId}/flag`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          reason: 'not allowed',
+          userId: 1
+        });
+      // console.log(flag);
+
+      const response = await request(server)
+        .delete(`/api/v1/gifs/${gif.body.data.gifId}`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(200);
+      expect(response.body).to.have.property('status', 'success');
+      expect(response.body).to.have.property('data');
+      expect(response.body)
+        .to.have.property('data')
+        .to.be.a('object');
+      expect(response.body).to.be.a('object');
+      expect(response.body.data).to.have.property(
+        'message',
+        'gif post flagged successfully deleted'
+      );
+    });
+  });
+});
+
+describe('Employees can flag a gif as inapproprate', () => {
+  describe('PATCH /api/v1/gifs/:gifId/flag', () => {
+    it('it should return status success', async () => {
+      const token = await login(adminCredentials);
+      const userToken = await login(userCredentials);
+      const gif = await request(server)
+        .post('/api/v1/gifs')
+        .set('Content-Type', 'application/x-www-form-urlencoded')
+        .set('Authorization', `Bearer ${token}`)
+        .field('category', 'Test')
+        .field('text', 'Test for mocha')
+        .field('userId', 1)
+        .attach(
+          'gif',
+          fs.readFileSync(
+            'C:/Users/Stallion Stud/Desktop/received_1475019652647734.gif'
+          ),
+          'christmas.gif'
+        );
+      // console.log(flag);
+
+      const response = await request(server)
+        .patch(`/api/v1/gifs/${gif.body.data.gifId}/flag`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({
+          reason: 'not allowed',
+          userId: 2
+        });
+      expect(response.status).to.equal(200);
+      expect(response.body).to.have.property('status', 'success');
+      expect(response.body).to.have.property('data');
+      expect(response.body)
+        .to.have.property('data')
+        .to.be.a('object');
+      expect(response.body).to.be.a('object');
+      expect(response.body.data).to.have.property(
+        'message',
+        'gif successfully flagged as inapproriate'
+      );
+    });
+  });
+});
+
+describe('Employees can flag an article as inapproprate', () => {
+  describe('PATCH /api/v1/articles/:articleId/flag', () => {
+    it('it should return status success', async () => {
+      const token = await login(adminCredentials);
+      const userToken = await login(userCredentials);
+      const article = await request(server)
+        .post('/api/v1/articles')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          category: 'Test',
+          title: 'Mocha',
+          article:
+            'Doing test in a node js application with Mocha is a good practice.',
+          userId: 1
+        });
+      // console.log(flag);
+
+      const response = await request(server)
+        .patch(`/api/v1/articles/${article.body.data.articleId}/flag`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({
+          reason: 'not allowed',
+          userId: 2
+        });
+      expect(response.status).to.equal(200);
+      expect(response.body).to.have.property('status', 'success');
+      expect(response.body).to.have.property('data');
+      expect(response.body)
+        .to.have.property('data')
+        .to.be.a('object');
+      expect(response.body).to.be.a('object');
+      expect(response.body.data).to.have.property(
+        'message',
+        'gif successfully flagged as inapproriate'
       );
     });
   });
@@ -412,24 +568,32 @@ describe('Employees can view all articles or gifs, showing the most recently pos
 });
 
 describe('Employees can view a specific article', () => {
-  it('GET /api/v1/articles/<:articleId> it should return success and array of article and its comments if any', async () => {
-    const response = await request(server).get('/api/v1/articles/:articleId');
-    expect(response.status).to.equal(200);
-    expect(response.body).to.have.property('status', 'success');
-    expect(response.body).to.have.property('data');
-    expect(response.body)
-      .to.have.property('data')
-      .to.be.a('object');
-    expect(response.body).to.be.a('object');
-    expect(response.body.data).to.have.property(
-      'message',
-      'comment successfully created'
-    );
-    expect(response.body.data).to.have.property('id');
-    expect(response.body.data).to.have.property('createdOn');
-    expect(response.body.data).to.have.property('title');
-    expect(response.body.data).to.have.property('article');
-    expect(response.body.data).to.have.property('comments');
+  describe('GET /api/v1/articles/<:articleId>', () => {
+    it('it should return success and array of article and its comments if any', async () => {
+      const token = await login(adminCredentials);
+      const article = {
+        category: 'Love',
+        title: 'Agape',
+        article: 'This is the unconditional love that God has for his children',
+        userId: 1
+      };
+      const art = await request(server)
+        .post('/api/v1/articles')
+        .set('Authorization', `Bearer ${token}`)
+        .send(article);
+      // console.log(art.body.data.articleId);
+      const response = await request(server)
+        .get(`/api/v1/articles/${art.body.data.articleId}`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(200);
+      expect(response.body).to.have.property('status', 'success');
+      expect(response.body).to.have.property('data');
+      expect(response.body.data).to.have.property('id');
+      expect(response.body.data).to.have.property('createdOn');
+      expect(response.body.data).to.have.property('title');
+      expect(response.body.data).to.have.property('article');
+      expect(response.body.data).to.have.property('comments');
+    });
   });
 });
 
@@ -437,7 +601,7 @@ describe('Employees can view a specific gif post', () => {
   describe('GET /api/v1/gifs/:gifId', () => {
     it('it should returns success and success and array of gifs and all the comments if any', async () => {
       const token = await login(userCredentials);
-      const gifTest = await request(server)
+      const gif = await request(server)
         .post('/api/v1/gifs')
         .set('Content-Type', 'application/x-www-form-urlencoded')
         .set('Authorization', `Bearer ${token}`)
@@ -452,7 +616,7 @@ describe('Employees can view a specific gif post', () => {
           'christmas.gif'
         );
       const response = await request(server)
-        .get('/api/v1/gifs/2')
+        .get(`/api/v1/gifs/${gif.body.data.gifId}`)
         .set('Authorization', `Bearer ${token}`);
       expect(response.status).to.equal(200);
       expect(response.body).to.have.property('status', 'success');

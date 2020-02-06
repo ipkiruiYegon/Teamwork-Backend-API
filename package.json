@@ -20,7 +20,7 @@
     "clean": "rimraf dist",
     "prod": "NODE_ENV=production npm-run-all clean build server:prod",
     "testDb": "npm-run-all dropTables dbTables dbAlterTables dbUser dbNormalUser",
-    "mochaTest": "mocha --timeout 10000 tests/ --reporter  spec --exec babel-node --require @babel/register --exit",
+    "mochaTest": "mocha --timeout 20000 tests/ --reporter  spec --exec babel-node --require @babel/register --exit",
     "test": "NODE_ENV=test npm-run-all testDb mochaTest",
     "travis": "NODE_ENV=travis npm-run-all testDb mochaTest",
     "test:watch": "mocha tests/ --reporter  spec --NODE_ENV=development --DEBUG=server:debug --exec --require @babel/register babel-node  watch",
