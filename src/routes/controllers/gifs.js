@@ -376,4 +376,65 @@ router.patch('/gifs/:gifId/flag', Auth.verifyToken, async (req, res) => {
   }
 });
 
+router.post('/gifs/:gifId/comment', Auth.verifyToken, async (req, res) => {
+  debug(req.params);
+  if (req.params && req.body.comment) {
+    try {
+      const gifId = Number(req.params.gifId);
+      if (Number.isInteger(gifId)) {
+        const sql = 'Select * from gifs where id=$1';
+        const { rows } = await db.query(sql, [gifId]);
+        if (!rows[0]) {
+          return res.status(404).json({
+            status: 'error',
+            message: 'Gif not found'
+          });
+        }
+        const comment = Helper.toTitleCase(req.body.comment);
+        const gifComment = await db.query(
+          'INSERT INTO gif_comments(gif, text, user_id) VALUES ($1, $2, $3) returning *',
+          [gifId, comment, req.user.id]
+        );
+        if (!gifComment.rows[0]) {
+          return res.status(500).json({
+            status: 'error',
+            message: 'something went wrong while processing your request'
+          });
+        }
+        res.status(201);
+        res.json({
+          status: 'success',
+          data: {
+            message: 'comment successfully created',
+            gifId,
+            createdOn: gifComment.rows[0].comment_date,
+            gifTitle: rows[0].reason,
+            gifUrl: rows[0].gifurl,
+            gifCreatedBy: rows[0].user_id,
+            commentId: gifComment.rows[0].id,
+            comment: gifComment.rows[0].text,
+            commentedBy: gifComment.rows[0].user_id
+          }
+        });
+      } else {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Incomplete request'
+        });
+      }
+    } catch (error) {
+      debug(error);
+      throw new ErrorHandler(
+        500,
+        'something went wrong while processing your request'
+      );
+    }
+  } else {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Incomplete request'
+    });
+  }
+});
+
 module.exports = router;

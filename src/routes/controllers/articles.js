@@ -29,6 +29,37 @@ router.get('/articles', Auth.verifyToken, async (req, res) => {
   }
 });
 
+router.get('/articles/category/:tag', Auth.verifyToken, async (req, res) => {
+  if (req.params) {
+    debug(req.params.tag.trim());
+    try {
+      const tag = Helper.toTitleCase(req.params.tag.trim());
+      const sql =
+        'SELECT articles.id as id, articles.category as category, articles.title as title, articles.text as article,  articles.posted_date as createdOn, articles.article_flagged as flagged, articles.user_id AS authorId,count(articles_comments.id) as comments FROM articles LEFT JOIN articles_comments ON articles.id = articles_comments.article where articles.category=$1 GROUP BY articles.id ORDER BY posted_date DESC';
+      const { rows } = await db.query(sql, [tag]);
+      debug(rows);
+      if (rows) {
+        res.status(200);
+        res.json({
+          status: 'success',
+          data: rows
+        });
+      }
+    } catch (error) {
+      debug(error);
+      throw new ErrorHandler(
+        500,
+        'something went wrong while processing your request'
+      );
+    }
+  } else {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Incomplete request'
+    });
+  }
+});
+
 // eslint-disable-next-line consistent-return
 router.post('/articles', Auth.verifyToken, async (req, res) => {
   if (!req.body.title || !req.body.article || !req.body.userId) {
@@ -291,77 +322,145 @@ router.patch('/articles/:articleId', Auth.verifyToken, async (req, res) => {
   }
 });
 
-router.patch('/articles/:articleId/flag', Auth.verifyToken, async (req, res) => {
-  debug(req.params);
-  if (req.params && req.body.reason) {
-    try {
-      const articleId = Number(req.params.articleId);
-      if (Number.isInteger(articleId)) {
-        const sql = 'Select * from articles where id=$1';
-        const { rows } = await db.query(sql, [articleId]);
-        if (!rows[0]) {
-          return res.status(404).json({
-            status: 'error',
-            message: 'Article not found'
-          });
-        }
-        const reason = Helper.toTitleCase(req.body.reason);
-        const flagged = await db.query(
-          'Select * from articles where article_flagged=$1 and id=$2',
-          ['True', articleId]
-        );
-        if (!flagged.rows[0]) {
-          const articleFlag = await db.query(
-            'UPDATE articles SET article_flagged=$1 where id=$2 returning *',
+router.patch(
+  '/articles/:articleId/flag',
+  Auth.verifyToken,
+  async (req, res) => {
+    debug(req.params);
+    if (req.params && req.body.reason) {
+      try {
+        const articleId = Number(req.params.articleId);
+        if (Number.isInteger(articleId)) {
+          const sql = 'Select * from articles where id=$1';
+          const { rows } = await db.query(sql, [articleId]);
+          if (!rows[0]) {
+            return res.status(404).json({
+              status: 'error',
+              message: 'Article not found'
+            });
+          }
+          const reason = Helper.toTitleCase(req.body.reason);
+          const flagged = await db.query(
+            'Select * from articles where article_flagged=$1 and id=$2',
             ['True', articleId]
           );
-          if (!articleFlag.rows[0]) {
+          if (!flagged.rows[0]) {
+            const articleFlag = await db.query(
+              'UPDATE articles SET article_flagged=$1 where id=$2 returning *',
+              ['True', articleId]
+            );
+            if (!articleFlag.rows[0]) {
+              return res.status(500).json({
+                status: 'error',
+                message: 'something went wrong while processing your request'
+              });
+            }
+          }
+          const flag = await db.query(
+            'INSERT INTO articles_flags(article, reason, user_id) VALUES ($1, $2, $3) returning *',
+            [articleId, reason, req.user.id]
+          );
+          if (!flag.rows[0]) {
             return res.status(500).json({
               status: 'error',
               message: 'something went wrong while processing your request'
             });
           }
-        }
-        const flag = await db.query(
-          'INSERT INTO articles_flags(article, reason, user_id) VALUES ($1, $2, $3) returning *',
-          [articleId, reason, req.user.id]
-        );
-        if (!flag.rows[0]) {
-          return res.status(500).json({
+          res.status(200);
+          res.json({
+            status: 'success',
+            data: {
+              message: 'gif successfully flagged as inapproriate',
+              articleId,
+              flagId: flag.rows[0].id,
+              reason: flag.rows[0].reason,
+              userId: flag.rows[0].user_id
+            }
+          });
+        } else {
+          return res.status(400).json({
             status: 'error',
-            message: 'something went wrong while processing your request'
+            message: 'Incomplete request'
           });
         }
-        res.status(200);
-        res.json({
-          status: 'success',
-          data: {
-            message: 'gif successfully flagged as inapproriate',
-            articleId,
-            flagId: flag.rows[0].id,
-            reason: flag.rows[0].reason,
-            userId: flag.rows[0].user_id
-          }
-        });
-      } else {
-        return res.status(400).json({
-          status: 'error',
-          message: 'Incomplete request'
-        });
+      } catch (error) {
+        debug(error);
+        throw new ErrorHandler(
+          500,
+          'something went wrong while processing your request'
+        );
       }
-    } catch (error) {
-      debug(error);
-      throw new ErrorHandler(
-        500,
-        'something went wrong while processing your request'
-      );
+    } else {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Incomplete request'
+      });
     }
-  } else {
-    return res.status(400).json({
-      status: 'error',
-      message: 'Incomplete request'
-    });
   }
-});
+);
+
+router.post(
+  '/articles/:articleId/comment',
+  Auth.verifyToken,
+  async (req, res) => {
+    debug(req.params);
+    if (req.params && req.body.comment) {
+      try {
+        const articleId = Number(req.params.articleId);
+        if (Number.isInteger(articleId)) {
+          const sql = 'Select * from articles where id=$1';
+          const { rows } = await db.query(sql, [articleId]);
+          if (!rows[0]) {
+            return res.status(404).json({
+              status: 'error',
+              message: 'Article not found'
+            });
+          }
+          const comment = Helper.toTitleCase(req.body.comment);
+          const articleComment = await db.query(
+            'INSERT INTO articles_comments(article, text, user_id) VALUES ($1, $2, $3) returning *',
+            [articleId, comment, req.user.id]
+          );
+          if (!articleComment.rows[0]) {
+            return res.status(500).json({
+              status: 'error',
+              message: 'something went wrong while processing your request'
+            });
+          }
+          res.status(201);
+          res.json({
+            status: 'success',
+            data: {
+              message: 'comment successfully created',
+              articleId,
+              createdOn: articleComment.rows[0].comment_date,
+              articleTitle: rows[0].title,
+              article: rows[0].text,
+              author: rows[0].user_id,
+              comment: articleComment.rows[0].text,
+              commentedBy: articleComment.rows[0].user_id
+            }
+          });
+        } else {
+          return res.status(400).json({
+            status: 'error',
+            message: 'Incomplete request'
+          });
+        }
+      } catch (error) {
+        debug(error);
+        throw new ErrorHandler(
+          500,
+          'something went wrong while processing your request'
+        );
+      }
+    } else {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Incomplete request'
+      });
+    }
+  }
+);
 
 module.exports = router;
