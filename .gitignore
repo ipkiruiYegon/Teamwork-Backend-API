@@ -1,0 +1,7 @@
+node_modules
+dist
+.vscode
+.env
+config/development.json
+config/production.json
+config/test.json
