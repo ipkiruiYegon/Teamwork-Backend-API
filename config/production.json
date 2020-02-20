@@ -1,7 +1,7 @@
 {
   "name": "Server Production",
-  "database": "postgres://teamOwner:Dteam5931@localhost:5932/teamwork",
-  "dbName": "teamwork",
+  "database": "postgres://nbiisrzqznejvs:d53fb0fe0e4168c564f4b6ff080219be9d2a5a5abc291def61fa5d9f791ad5b0@ec2-3-230-106-126.compute-1.amazonaws.com:5432/d3gl3mr48771du",
+  "dbName": "d3gl3mr48771du",
   "port": 3000,
   "secret": "AndWhatsoeveryoudo,doitheartily,astotheLord,andnotuntomen",
   "expiry": "1H",
