@@ -4,3 +4,5 @@ dist
 .env
 config/development.json
 config/test.json
+config/travis.json
+config/production.json
