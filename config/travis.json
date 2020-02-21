@@ -1,8 +1,0 @@
-{
-  "name": "Travis Test",
-  "database": "postgres://postgres@127.0.0.1:5432/test_db",
-  "dbName": "test_db",
-  "port": 3100,
-  "secret": "TESTFORMYAPISROUTES",
-  "expiry": "1H"
-}
