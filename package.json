@@ -22,7 +22,7 @@
     "testDb": "npm-run-all dropTables dbTables dbAlterTables dbUser dbNormalUser",
     "mochaTest": "mocha --timeout 20000 tests/ --reporter  spec --exec babel-node --require @babel/register --exit",
     "test": "NODE_ENV=test npm-run-all testDb mochaTest",
-    "travis": "NODE_ENV=travis npm-run-all testDb mochaTest",
+    "travis": "NODE_ENV=travis npm-run-all testDb clean build server:prod",
     "test:watch": "mocha tests/ --reporter  spec --NODE_ENV=development --DEBUG=server:debug --exec --require @babel/register babel-node  watch",
     "eslint": "eslint src/**/*.js --ignore-pattern \"node_modules/\"",
     "eslint-fix": "eslint src/**/*.js --ignore-pattern \"node_modules/\" --fix",
