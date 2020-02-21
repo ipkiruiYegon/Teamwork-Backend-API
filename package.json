@@ -8,6 +8,7 @@
     "server": "babel-node ./src/index.js",
     "serve": "NODE_ENV=production exec babel-node ./dist/index.js",
     "start": "npm run prod",
+    "coverage": "./node_modules/coveralls/bin/coveralls.js",
     "server:prod": "node ./dist/index.js",
     "dev": "NODE_ENV=development DEBUG=teamwork-backend-api:debug npm-run-all server",
     "dbTables": "node db.js createTables",
