@@ -4,7 +4,8 @@
   "description": "API server for a internal social network",
   "main": "./src/index.js",
   "scripts": {
-    "build": "babel src -d dist --source-maps",
+    "rdist": "babel src -d dist --source-maps",
+    "build": "NODE_ENV=development npm-run-all clean rdist",
     "server": "babel-node ./src/index.js",
     "serve": "NODE_ENV=production exec babel-node ./dist/index.js",
     "start": "npm run prod",

@@ -18,15 +18,15 @@ router.post(
   async (req, res, next) => {
     try {
       if (
-        !req.body.firstName
-        || !req.body.lastName
-        || !req.body.email
-        || !req.body.phone
-        || !req.body.is_superuser
-        || !req.body.gender
-        || !req.body.jobRole
-        || !req.body.department
-        || !req.body.address
+        !req.body.firstName ||
+        !req.body.lastName ||
+        !req.body.email ||
+        !req.body.phone ||
+        !req.body.is_superuser ||
+        !req.body.gender ||
+        !req.body.jobRole ||
+        !req.body.department ||
+        !req.body.address
       ) {
         return next(new ErrorHandler(401, 'incomplete user details'));
       }
@@ -43,7 +43,8 @@ router.post(
       }
       const password = randomstring.generate(6);
       const hash = bcrypt.hashSync(password, 10);
-      const user = 'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12) returning id';
+      const user =
+        'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12) returning id';
       const { rows } = await db.query(user, [
         hash,
         req.body.firstName,
@@ -60,7 +61,9 @@ router.post(
       ]);
 
       if (!rows[0].id) {
-        return next(new ErrorHandler(500, 'An error occured while saving the user'));
+        return next(
+          new ErrorHandler(500, 'An error occured while saving the user')
+        );
       }
       const message = {
         from: 'ipkiruig83@gmail.com', // Sender address
@@ -69,10 +72,12 @@ router.post(
         text: `You have been successfully registered to access this app. your password is ${password}` // Plain text body
       };
       if (await !Helper.sendMail(message)) {
-        return next(new ErrorHandler(
-          500,
-          'An error occured while sending mail to the user'
-        ));
+        return next(
+          new ErrorHandler(
+            500,
+            'An error occured while sending mail to the user'
+          )
+        );
       }
       const token = Helper.generateToken(rows[0].id);
       res.status(201);
