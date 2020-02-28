@@ -1,5 +1,5 @@
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const config = require('config');
 const debug = require('debug')('teamwork-backend-api:debug');
 const db = require('../../db/index.js');
 const { ErrorHandler } = require('../../auth/middleware/error');
@@ -14,7 +14,7 @@ const Auth = {
       // const token = await req.headers.authorization.split(' ')[1];
       if (req.headers.token) {
         const token = await req.headers.token;
-        const secretWord = config.get('secret');
+        const secretWord = process.env.secret;
         const decoded = await jwt.verify(token, secretWord);
         const user = decoded.userId;
         // debug(user);
@@ -31,7 +31,7 @@ const Auth = {
         }
       } else if (req.headers.authorization) {
         const token = req.headers.authorization.split(' ')[1];
-        const secretWord = config.get('secret');
+        const secretWord = process.env.secret;
         const decoded = await jwt.verify(token, secretWord);
         const user = decoded.userId;
         // debug(user);
@@ -62,7 +62,7 @@ const Auth = {
       }
       if (req.headers.token) {
         const token = await req.headers.token;
-        const secretWord = config.get('secret');
+        const secretWord = process.env.secret;
         const decoded = await jwt.verify(token, secretWord);
         const user = decoded.userId;
         const text =
@@ -78,7 +78,7 @@ const Auth = {
         next();
       } else if (req.headers.authorization) {
         const token = req.headers.authorization.split(' ')[1];
-        const secretWord = config.get('secret');
+        const secretWord = process.env.secret;
         const decoded = await jwt.verify(token, secretWord);
         const user = decoded.userId;
         debug(decoded);

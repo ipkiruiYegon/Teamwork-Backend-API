@@ -1,11 +1,11 @@
+require('dotenv').config();
 const { config, uploader } = require('cloudinary');
-const configs = require('config');
 
 const cloudinaryConfig = (req, res, next) => {
   config({
-    cloud_name: configs.get('cloud_name'),
-    api_key: configs.get('api_key'),
-    api_secret: configs.get('api_secret')
+    cloud_name: process.env.cloud_name,
+    api_key: process.env.api_key,
+    api_secret: process.env.api_secret
   });
   next();
 };
