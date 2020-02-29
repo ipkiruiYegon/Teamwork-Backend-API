@@ -4,7 +4,10 @@ const debug = require('debug')('teamwork-backend-api:debug');
 
 const app = require('./app');
 
-const listen = app.listen(process.env.port, () => {
+debug(process.env.port);
+const { port } = process.env;
+
+const listen = app.listen(port, () => {
   debug(
     `server is running on port ${process.env.port} and in ${process.env.name} mode`
   );
@@ -15,6 +18,5 @@ const listen = app.listen(process.env.port, () => {
   //   )} mode`
   // );
 });
-
 module.exports = app;
 module.exports.port = listen.address().port;
