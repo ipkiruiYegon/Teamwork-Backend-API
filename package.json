@@ -10,6 +10,7 @@
     "serve": "NODE_ENV=production exec babel-node ./dist/index.js",
     "start": "npm run prod",
     "coverage": "nyc npm run test",
+    "coverage_instanbul": "istanbul cover npm run test --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "server:prod": "node ./dist/index.js",
     "dev": "NODE_ENV=development DEBUG=teamwork-backend-api:debug npm-run-all server",
     "dbTables": "node db.js createTables",

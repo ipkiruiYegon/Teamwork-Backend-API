@@ -5,7 +5,7 @@ const debug = require('debug')('teamwork-backend-api:debug');
 const app = require('./app');
 
 debug(process.env.port);
-const { port } = process.env;
+const port = process.env.PORT || 80;
 
 const listen = app.listen(port, () => {
   debug(
