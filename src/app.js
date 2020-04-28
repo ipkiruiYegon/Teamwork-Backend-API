@@ -9,7 +9,10 @@ const { cloudinaryConfig } = require('../cloudinaryConfig.js');
 
 const app = express();
 
-const allowedOrigins = ['http://localhost:3000'];
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://my-teamwork-api.herokuapp.com',
+];
 app.use(
   cors({
     origin(origin, callback) {
@@ -23,7 +26,7 @@ app.use(
         return callback(new Error(msg), false);
       }
       return callback(null, true);
-    }
+    },
   })
 );
 
@@ -39,7 +42,7 @@ app.use(
 
 app.use(
   bodyParser.urlencoded({
-    extended: true
+    extended: true,
   })
 );
 app.use(bodyParser.json());
@@ -60,7 +63,7 @@ app.use((req, res, next) => {
   res.status(404);
   res.json({
     status: 'error',
-    error: 'Route not found'
+    error: 'Route not found',
   });
 });
 
