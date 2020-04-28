@@ -57,7 +57,7 @@ router.post(
         req.body.gender,
         req.body.jobRole,
         req.body.department,
-        req.body.address
+        req.body.address,
       ]);
 
       if (!rows[0].id) {
@@ -69,7 +69,7 @@ router.post(
         from: 'ipkiruig83@gmail.com', // Sender address
         to: req.body.email, // List of recipients
         subject: 'Password for Teamwork App', // Subject line
-        text: `You have been successfully registered to access this app. your password is ${password}` // Plain text body
+        text: `You have been successfully registered to access this app. your password is ${password}`, // Plain text body
       };
       if (await !Helper.sendMail(message)) {
         return next(
@@ -79,15 +79,16 @@ router.post(
           )
         );
       }
-      const token = Helper.generateToken(rows[0].id);
+      const usr = Helper.encryptData(rows[0].id);
+      const token = Helper.generateToken(usr);
       res.status(201);
       res.json({
         status: 'success',
         data: {
           message: 'User account successfully created',
           token,
-          userId: rows[0].id
-        }
+          userId: usr,
+        },
       });
     } catch (error) {
       debug(error);
@@ -114,7 +115,12 @@ router.post('/auth/signin', async (req, res, next) => {
     if (!Validate.comparePassword(rows[0].password, req.body.password)) {
       throw new ErrorHandler(401, 'invalid login credentials');
     }
-    const token = Helper.generateToken(rows[0].id);
+    if (rows[0].is_active === false) {
+      throw new ErrorHandler(401, 'Your account is Inactive please activate.');
+    }
+    const usrl = Helper.encryptData(rows[0].id);
+    debug(usrl);
+    const token = Helper.generateToken(usrl);
     if (await !Helper.updateLogin(rows[0].id)) {
       throw new ErrorHandler(
         500,
@@ -125,8 +131,8 @@ router.post('/auth/signin', async (req, res, next) => {
       status: 'success',
       data: {
         token,
-        userId: rows[0].id
-      }
+        userId: usrl,
+      },
     });
   } catch (error) {
     debug(error);

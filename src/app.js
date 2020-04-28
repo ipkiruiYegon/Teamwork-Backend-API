@@ -15,7 +15,7 @@ app.use(
     origin(origin, callback) {
       // allow requests with no origin
       // (like mobile apps or curl requests)
-      // if (!origin) return callback(null, true);
+      if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) === -1) {
         const msg =
           'The CORS policy for this site does not ' +
@@ -36,6 +36,7 @@ app.use(
 //   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE,PATCH');
 //   next();
 // });
+
 app.use(
   bodyParser.urlencoded({
     extended: true
