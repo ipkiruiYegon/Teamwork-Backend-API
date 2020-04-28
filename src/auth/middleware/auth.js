@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const debug = require('debug')('teamwork-backend-api:debug');
 const db = require('../../db/index.js');
 const { ErrorHandler } = require('../../auth/middleware/error');
+const Helper = require('../../auth/helper.js');
 
 const Auth = {
   // eslint-disable-next-line consistent-return
@@ -16,8 +17,9 @@ const Auth = {
         const token = await req.headers.token;
         const secretWord = process.env.secret;
         const decoded = await jwt.verify(token, secretWord);
-        const user = decoded.userId;
-        // debug(user);
+        // eslint-disable-next-line radix
+        const user = parseInt(Helper.decryptData(decoded.userId));
+        debug(user);
         const text = 'SELECT * FROM sys_users WHERE id = $1';
         const { rows } = await db.query(text, [user]);
         if (!rows[0]) {
@@ -33,8 +35,9 @@ const Auth = {
         const token = req.headers.authorization.split(' ')[1];
         const secretWord = process.env.secret;
         const decoded = await jwt.verify(token, secretWord);
-        const user = decoded.userId;
-        // debug(user);
+        // eslint-disable-next-line radix
+        const user = parseInt(Helper.decryptData(decoded.userId));
+        debug(user);
         const text = 'SELECT * FROM sys_users WHERE id = $1';
         const { rows } = await db.query(text, [user]);
         if (!rows[0]) {
@@ -64,7 +67,8 @@ const Auth = {
         const token = await req.headers.token;
         const secretWord = process.env.secret;
         const decoded = await jwt.verify(token, secretWord);
-        const user = decoded.userId;
+        // eslint-disable-next-line radix
+        const user = parseInt(Helper.decryptData(decoded.userId));
         const text =
           'SELECT * FROM sys_users WHERE id = $1 and is_superuser = $2';
         const { rows } = await db.query(text, [user, 'True']);
@@ -80,7 +84,8 @@ const Auth = {
         const token = req.headers.authorization.split(' ')[1];
         const secretWord = process.env.secret;
         const decoded = await jwt.verify(token, secretWord);
-        const user = decoded.userId;
+        // eslint-disable-next-line radix
+        const user = parseInt(Helper.decryptData(decoded.userId));
         debug(decoded);
         debug(user);
         const text =

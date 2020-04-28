@@ -9,13 +9,16 @@ const { cloudinaryConfig } = require('../cloudinaryConfig.js');
 
 const app = express();
 
-const allowedOrigins = ['http://localhost:3000'];
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://my-teamwork-api.herokuapp.com',
+];
 app.use(
   cors({
     origin(origin, callback) {
       // allow requests with no origin
       // (like mobile apps or curl requests)
-      // if (!origin) return callback(null, true);
+      if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) === -1) {
         const msg =
           'The CORS policy for this site does not ' +
@@ -23,7 +26,7 @@ app.use(
         return callback(new Error(msg), false);
       }
       return callback(null, true);
-    }
+    },
   })
 );
 
@@ -36,9 +39,10 @@ app.use(
 //   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE,PATCH');
 //   next();
 // });
+
 app.use(
   bodyParser.urlencoded({
-    extended: true
+    extended: true,
   })
 );
 app.use(bodyParser.json());
@@ -59,7 +63,7 @@ app.use((req, res, next) => {
   res.status(404);
   res.json({
     status: 'error',
-    error: 'Route not found'
+    error: 'Route not found',
   });
 });
 

@@ -1,4 +1,5 @@
 require('dotenv').config();
+const crypto = require('crypto');
 
 const nodemailer = require('nodemailer');
 
@@ -9,6 +10,11 @@ const moment = require('moment');
 const debug = require('debug')('teamwork-backend-api:debug');
 
 const db = require('../db/index.js');
+
+const { ErrorHandler } = require('../auth/middleware/error');
+
+const key = crypto.randomBytes(32);
+const iv = crypto.randomBytes(16);
 
 const Helper = {
   async updateLogin(userId) {
@@ -37,7 +43,7 @@ const Helper = {
 
       .split(' ')
 
-      .map(w => w[0].toUpperCase() + w.substr(1).toLowerCase())
+      .map((w) => w[0].toUpperCase() + w.substr(1).toLowerCase())
 
       .join(' ');
   },
@@ -49,7 +55,7 @@ const Helper = {
 
     const token = jwt.sign(
       {
-        userId: id
+        userId: id,
       },
 
       secretWord,
@@ -58,6 +64,36 @@ const Helper = {
     );
 
     return token;
+  },
+
+  encryptData(data) {
+    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let encrypted = cipher.update(data.toString());
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return encrypted.toString('hex');
+  },
+
+  decryptData(enData) {
+    try {
+      debug(enData);
+      debug(iv);
+      const encryptedText = Buffer.from(enData, 'hex');
+      debug('en-', encryptedText);
+      const decipher = crypto.createDecipheriv(
+        'aes-256-cbc',
+        Buffer.from(key),
+        iv
+      );
+      let decrypted = decipher.update(encryptedText);
+      decrypted = Buffer.concat([decrypted, decipher.final()]);
+      return decrypted.toString();
+    } catch (error) {
+      debug(error);
+      throw new ErrorHandler(
+        500,
+        'something went wrong while processing your request'
+      );
+    }
   },
 
   async sendMail(message) {
@@ -69,8 +105,8 @@ const Helper = {
       auth: {
         user: process.env.user,
 
-        pass: process.env.pass
-      }
+        pass: process.env.pass,
+      },
     });
 
     // eslint-disable-next-line consistent-return
@@ -88,7 +124,7 @@ const Helper = {
         return true;
       }
     });
-  }
+  },
 };
 
 module.exports = Helper;
