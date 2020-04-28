@@ -1,4 +1,4 @@
-const config = require('config');
+require('dotenv').config();
 
 const bcrypt = require('bcrypt');
 
@@ -7,24 +7,23 @@ const { Pool } = require('pg');
 const debug = require('debug')('teamwork-backend-api:debug');
 
 const pool = new Pool({
-  connectionString: config.get('database')
+  connectionString: process.env.database
 });
 
 debug(
-  `current database connection- ${config.get('database')} and in ${config.get(
-    'name'
-  )} mode`
+  `current database connection- ${process.env.database} and in ${process.env.name} mode`
 );
 
 const dropTables = () => {
-  const dropDbTables =    'DROP TABLE IF EXISTS sys_users, articles, articles_flags, articles_comments, categories,gifs,gifs_flags,gif_comments,gif_comments,sys_logs CASCADE';
+  const dropDbTables =
+    'DROP TABLE IF EXISTS sys_users, articles, articles_flags, articles_comments, categories,gifs,gifs_flags,gif_comments,gif_comments,sys_logs CASCADE';
   pool
     .query(dropDbTables)
-    .then((res) => {
+    .then(res => {
       debug(res);
       pool.end();
     })
-    .catch((err) => {
+    .catch(err => {
       debug(err);
       pool.end();
     });
@@ -124,11 +123,11 @@ const createTables = () => {
       )`;
   pool
     .query(teamWorkDb)
-    .then((res) => {
+    .then(res => {
       debug(res);
       pool.end();
     })
-    .catch((err) => {
+    .catch(err => {
       debug(err);
       pool.end();
     });
@@ -157,18 +156,19 @@ const alterTables = () => {
     ADD CONSTRAINT  sys_logs_fkey FOREIGN KEY (user_id) REFERENCES sys_users(id) ON DELETE CASCADE`;
   pool
     .query(updateTables)
-    .then((res) => {
+    .then(res => {
       debug(res);
       pool.end();
     })
-    .catch((err) => {
+    .catch(err => {
       debug(err);
       pool.end();
     });
 };
 
 const createSuperUser = () => {
-  const superUser =    'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12)';
+  const superUser =
+    'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12)';
   const hash = bcrypt.hashSync('apisuperuser1', 10);
   const values = [
     hash,
@@ -186,18 +186,19 @@ const createSuperUser = () => {
   ];
   pool
     .query(superUser, values)
-    .then((res) => {
+    .then(res => {
       debug(res);
       pool.end();
     })
-    .catch((err) => {
+    .catch(err => {
       debug(err);
       pool.end();
     });
 };
 
 const createNormalUser = () => {
-  const normalUser =    'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12)';
+  const normalUser =
+    'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12)';
   const hash = bcrypt.hashSync('apisuperuser1', 10);
   const values = [
     hash,
@@ -215,11 +216,11 @@ const createNormalUser = () => {
   ];
   pool
     .query(normalUser, values)
-    .then((res) => {
+    .then(res => {
       debug(res);
       pool.end();
     })
-    .catch((err) => {
+    .catch(err => {
       debug(err);
       pool.end();
     });

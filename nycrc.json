@@ -1,0 +1,6 @@
+{
+  "all": true,
+  "include": ["src"],
+  "requires": ["@babel/register"],
+  "exclude": ["src/server.js", "**/database/seeders"]
+}

@@ -18,15 +18,15 @@ router.post(
   async (req, res, next) => {
     try {
       if (
-        !req.body.firstName
-        || !req.body.lastName
-        || !req.body.email
-        || !req.body.phone
-        || !req.body.is_superuser
-        || !req.body.gender
-        || !req.body.jobRole
-        || !req.body.department
-        || !req.body.address
+        !req.body.firstName ||
+        !req.body.lastName ||
+        !req.body.email ||
+        !req.body.phone ||
+        !req.body.is_superuser ||
+        !req.body.gender ||
+        !req.body.jobRole ||
+        !req.body.department ||
+        !req.body.address
       ) {
         return next(new ErrorHandler(401, 'incomplete user details'));
       }
@@ -43,7 +43,8 @@ router.post(
       }
       const password = randomstring.generate(6);
       const hash = bcrypt.hashSync(password, 10);
-      const user = 'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12) returning id';
+      const user =
+        'INSERT INTO sys_users(password, firstName, lastName, email, phone, is_superuser, password_status,login_attempts,gender,jobRole,department,address) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10,$11,$12) returning id';
       const { rows } = await db.query(user, [
         hash,
         req.body.firstName,
@@ -56,33 +57,38 @@ router.post(
         req.body.gender,
         req.body.jobRole,
         req.body.department,
-        req.body.address
+        req.body.address,
       ]);
 
       if (!rows[0].id) {
-        return next(new ErrorHandler(500, 'An error occured while saving the user'));
+        return next(
+          new ErrorHandler(500, 'An error occured while saving the user')
+        );
       }
       const message = {
         from: 'ipkiruig83@gmail.com', // Sender address
         to: req.body.email, // List of recipients
         subject: 'Password for Teamwork App', // Subject line
-        text: `You have been successfully registered to access this app. your password is ${password}` // Plain text body
+        text: `You have been successfully registered to access this app. your password is ${password}`, // Plain text body
       };
       if (await !Helper.sendMail(message)) {
-        return next(new ErrorHandler(
-          500,
-          'An error occured while sending mail to the user'
-        ));
+        return next(
+          new ErrorHandler(
+            500,
+            'An error occured while sending mail to the user'
+          )
+        );
       }
-      const token = Helper.generateToken(rows[0].id);
+      const usr = Helper.encryptData(rows[0].id);
+      const token = Helper.generateToken(usr);
       res.status(201);
       res.json({
         status: 'success',
         data: {
           message: 'User account successfully created',
           token,
-          userId: rows[0].id
-        }
+          userId: usr,
+        },
       });
     } catch (error) {
       debug(error);
@@ -109,7 +115,12 @@ router.post('/auth/signin', async (req, res, next) => {
     if (!Validate.comparePassword(rows[0].password, req.body.password)) {
       throw new ErrorHandler(401, 'invalid login credentials');
     }
-    const token = Helper.generateToken(rows[0].id);
+    if (rows[0].is_active === false) {
+      throw new ErrorHandler(401, 'Your account is Inactive please activate.');
+    }
+    const usrl = Helper.encryptData(rows[0].id);
+    debug(usrl);
+    const token = Helper.generateToken(usrl);
     if (await !Helper.updateLogin(rows[0].id)) {
       throw new ErrorHandler(
         500,
@@ -120,8 +131,8 @@ router.post('/auth/signin', async (req, res, next) => {
       status: 'success',
       data: {
         token,
-        userId: rows[0].id
-      }
+        userId: usrl,
+      },
     });
   } catch (error) {
     debug(error);

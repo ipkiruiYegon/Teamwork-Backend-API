@@ -3,5 +3,6 @@ dist
 .vscode
 .env
 config/development.json
-config/production.json
 config/test.json
+config/production.json
+config/travis.json
