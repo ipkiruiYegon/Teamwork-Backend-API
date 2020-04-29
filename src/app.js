@@ -2,6 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const helmet = require('helmet');
 // const { resolve } = require('path');
 const routes = require('./routes/routes');
 const { handleError } = require('./auth/middleware/error');
@@ -13,6 +14,8 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://my-teamwork-api.herokuapp.com',
 ];
+// app.disable('x-powered-by');
+app.use(helmet());
 app.use(
   cors({
     origin(origin, callback) {
